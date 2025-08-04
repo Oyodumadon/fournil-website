@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recettes au Levain - Boulangerie</title>
+    <link id="stylesheet" rel="stylesheet" href="../style/style0.css">
+    <style>
+        .nav-bar {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .nav-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            padding: 8px;
+            background-color: #f5f5f5;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #333;
+            font-size: 20px;
+            transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .nav-button:hover:not(.disabled) {
+            background-color: #e0e0e0;
+            transform: scale(1.1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .nav-button.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-bar">
+        <button class="nav-button" onclick="history.back()">◄</button>
+        <a class="nav-button" href="../index.html" onclick="setRandomStylesheet()">🏠</a>
+        <button class="nav-button" id="forwardButton" onclick="history.forward()">►</button>
+    </div>
+    <div class="container">
+        <div class="card">
+            <h1>Recettes au Levain</h1>
+            <p class="intro">
+                Découvrez notre collection de recettes au levain, parfaites pour les amateurs de pains authentiques et savoureux. Le levain naturel donne une saveur unique et une texture aérée à vos pains. Explorez nos recettes, conseils et astuces pour maîtriser l’art du levain !
+            </p>
+            <a href="cake_levain.html" class="button" onclick="setRandomStylesheet()">Cake Salé au Levain Non Rafraîchi</a>
+            <a href="focaccia_express.html" class="button" onclick="setRandomStylesheet()">Focaccia Express au Levain</a>
+        </div>
+    </div>
+    <script>
+        function applyStoredStylesheet() {
+            const styleIndex = localStorage.getItem('styleIndex') || '0';
+            console.log('Applying stylesheet: style' + styleIndex + '.css');
+            document.getElementById('stylesheet').href = `../style/style${styleIndex}.css`;
+        }
+        function setRandomStylesheet() {
+            const styleIndex = new Date().getSeconds() % 10;
+            console.log('Setting styleIndex: ' + styleIndex);
+            localStorage.setItem('styleIndex', styleIndex);
+            applyStoredStylesheet();
+        }
+        function setRandomBackground() {
+            const storedImage = localStorage.getItem('backgroundImage');
+            if (storedImage) {
+                console.log('Using stored background image');
+                document.body.style.backgroundImage = `url('${storedImage}')`;
+                return;
+            }
+            const apiKey = 'DdLm68RKMaOFFrnhe846qAD91zs3xmz0KSqhsmLnlIo';
+            fetch(`https://api.unsplash.com/photos/random?query=bread&orientation=landscape&client_id=${apiKey}`)
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.urls && data.urls.full) {
+                        const imageUrl = data.urls.full;
+                        document.body.style.backgroundImage = `url('${imageUrl}')`;
+                        localStorage.setItem('backgroundImage', imageUrl);
+                        console.log('New background image set and stored:', imageUrl);
+                    } else {
+                        console.error('Erreur: Aucune image reçue de l\'API Unsplash');
+                    }
+                })
+                .catch(error => console.error('Erreur lors du chargement de l\'image:', error));
+        }
+        function updateForwardButton() {
+            const forwardButton = document.getElementById('forwardButton');
+            forwardButton.classList.add('disabled');
+        }
+        applyStoredStylesheet();
+        setRandomBackground();
+        updateForwardButton();
+    </script>
+</body>
+</html>

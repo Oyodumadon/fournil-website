@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cake Salé au Levain - Boulangerie</title>
+    <link id="stylesheet" rel="stylesheet" href="../style/style0.css">
+    <style>
+        .nav-bar {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .nav-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            padding: 8px;
+            background-color: #f5f5f5;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #333;
+            font-size: 20px;
+            transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .nav-button:hover:not(.disabled) {
+            background-color: #e0e0e0;
+            transform: scale(1.1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .nav-button.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .card ul, .card ol {
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-bar">
+        <button class="nav-button" onclick="history.back()">◄</button>
+        <a class="nav-button" href="../index.html" onclick="setRandomStylesheet()">🏠</a>
+        <button class="nav-button" id="forwardButton" onclick="history.forward()">►</button>
+    </div>
+    <div class="container">
+        <div class="card">
+            <h1>🧀 Cake Salé au Levain Non Rafraîchi</h1>
+            <h2>🥣 Ingrédients (pour un moule à cake standard)</h2>
+            <ul>
+                <li>150 g de levain non rafraîchi (liquide ou semi-liquide, sorti du frigo)</li>
+                <li>150 g de farine (T65 ou T80)</li>
+                <li>3 œufs</li>
+                <li>60 ml d’huile d’olive</li>
+                <li>100 ml de lait</li>
+                <li>1 sachet de levure chimique (env. 10-11 g)</li>
+                <li>1 pincée de sel</li>
+                <li>Poivre, herbes au goût (thym, origan, romarin…)</li>
+            </ul>
+            <h2>🧂 Garniture (au choix – environ 150 à 200 g au total)</h2>
+            <p>Voici quelques idées, que vous pouvez combiner ou adapter :</p>
+            <ul>
+                <li>100 g de dés de jambon ou lardons (cuits)</li>
+                <li>50 g de fromage râpé (gruyère, comté, feta…)</li>
+                <li>Olives, tomates séchées, courgettes grillées, oignons caramélisés…</li>
+                <li>Noix, graines ou herbes fraîches</li>
+            </ul>
+            <h2>👨‍🍳 Préparation</h2>
+            <ol>
+                <li>Préchauffe le four à 180°C (chaleur tournante si possible).</li>
+                <li>Dans un grand saladier, bats les œufs avec le levain, le lait et l’huile.</li>
+                <li>Ajoute la farine, la levure chimique, le sel et le poivre. Mélange bien jusqu’à obtenir une pâte homogène.</li>
+                <li>Incorpore les ingrédients de garniture (fromage, jambon, légumes…).</li>
+                <li>Verse la pâte dans un moule à cake graissé ou chemisé de papier cuisson.</li>
+                <li>Enfourne pour 40 à 45 minutes. Vérifie la cuisson avec un couteau ou une pique : elle doit ressortir sèche.</li>
+                <li>Laisse tiédir avant de démouler. Ce cake se mange tiède ou froid.</li>
+            </ol>
+            <h2>📝 Astuces</h2>
+            <ul>
+                <li>Tu peux remplacer une partie du lait par un peu de yaourt nature pour plus de moelleux.</li>
+                <li>Pour un goût plus rustique, utilise de la farine semi-complète (T80 ou T110).</li>
+                <li>Il se conserve 2 à 3 jours au frais, ou peut se congeler tranché.</li>
+            </ul>
+            <h2>🧅 Comment caraméliser des oignons</h2>
+            <h3>Ingrédients (pour 2 gros oignons)</h3>
+            <ul>
+                <li>2 gros oignons (jaunes ou rouges)</li>
+                <li>1 à 2 c. à soupe d’huile d’olive ou de beurre (ou un mélange des deux)</li>
+                <li>1 pincée de sel</li>
+                <li>Facultatif : 1 c. à café de sucre (pour accentuer la caramélisation)</li>
+                <li>Facultatif : 1 c. à café de vinaigre balsamique ou vin blanc, pour déglacer</li>
+            </ul>
+            <h3>Étapes</h3>
+            <ol>
+                <li>Émince les oignons finement (demi-rondelles ou lamelles).</li>
+                <li>Fais chauffer l’huile ou le beurre dans une poêle à feu doux-moyen.</li>
+                <li>Ajoute les oignons et la pincée de sel (cela aide à libérer leur eau).</li>
+                <li>Fais cuire à feu doux, en remuant régulièrement.</li>
+                <li>Laisse cuire 30 à 45 minutes. Ils doivent transpirer, fondre, brunir lentement, pas brûler. Si ça colore trop vite, baisse le feu et ajoute une cuillère à soupe d’eau.</li>
+                <li>Optionnel : quand ils sont bien dorés, ajoute un peu de vinaigre balsamique ou de sucre et laisse caraméliser 2-3 minutes de plus.</li>
+            </ol>
+            <h3>Astuces</h3>
+            <ul>
+                <li>Plus tu prends ton temps, meilleur sera le résultat.</li>
+                <li>Tu peux en faire une grande quantité et les conserver au frigo 4 à 5 jours, ou les congeler.</li>
+                <li>Idéal dans : quiches, burgers, cakes salés, pizzas, omelettes…</li>
+            </ul>
+        </div>
+    </div>
+    <script>
+        function applyStoredStylesheet() {
+            const styleIndex = localStorage.getItem('styleIndex') || '0';
+            console.log('Applying stylesheet: style' + styleIndex + '.css');
+            document.getElementById('stylesheet').href = `../style/style${styleIndex}.css`;
+        }
+        function setRandomStylesheet() {
+            const styleIndex = new Date().getSeconds() % 10;
+            console.log('Setting styleIndex: ' + styleIndex);
+            localStorage.setItem('styleIndex', styleIndex);
+            applyStoredStylesheet();
+        }
+        function setRandomBackground() {
+            const storedImage = localStorage.getItem('backgroundImage');
+            if (storedImage) {
+                console.log('Using stored background image');
+                document.body.style.backgroundImage = `url('${storedImage}')`;
+                return;
+            }
+            const apiKey = 'DdLm68RKMaOFFrnhe846qAD91zs3xmz0KSqhsmLnlIo';
+            fetch(`https://api.unsplash.com/photos/random?query=bread&orientation=landscape&client_id=${apiKey}`)
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.urls && data.urls.full) {
+                        const imageUrl = data.urls.full;
+                        document.body.style.backgroundImage = `url('${imageUrl}')`;
+                        localStorage.setItem('backgroundImage', imageUrl);
+                        console.log('New background image set and stored:', imageUrl);
+                    } else {
+                        console.error('Erreur: Aucune image reçue de l\'API Unsplash');
+                    }
+                })
+                .catch(error => console.error('Erreur lors du chargement de l\'image:', error));
+        }
+        function updateForwardButton() {
+            const forwardButton = document.getElementById('forwardButton');
+            forwardButton.classList.add('disabled');
+        }
+        applyStoredStylesheet();
+        setRandomBackground();
+        updateForwardButton();
+    </script>
+</body>
+</html>
