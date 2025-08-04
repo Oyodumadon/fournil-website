@@ -1,0 +1,109 @@
+.nav-bar {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px;
+  background-color: rgba(245, 222, 179, 0.9); /* Beige semi-opaque */
+  border-bottom: 2px solid #DAA520; /* Bordure dorée */
+  margin-bottom: 20px;
+}
+.nav-button {
+  color: #8B4513; /* Brun rustique */
+  text-decoration: none;
+  font-size: 18px;
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+.nav-button:hover:not(.disabled) {
+  background-color: #DAA520; /* Doré */
+  color: white;
+}
+.nav-button.disabled {
+  color: #A9A9A9; /* Gris */
+  cursor: not-allowed;
+}
+.nav-button.arrow {
+  font-size: 24px;
+  padding: 8px;
+}
+.nav-button.home {
+  font-size: 24px; /* Même taille que les flèches */
+  padding: 8px;
+}
+.contact-frame {
+  max-width: 500px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: rgba(245, 222, 179, 1); /* Beige opaque */
+  border: 2px solid #DAA520; /* Bordure dorée */
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+.contact-frame h1 {
+  color: #8B4513; /* Brun rustique */
+  margin-bottom: 10px;
+}
+.contact-frame p {
+  color: #8B4513;
+  margin-bottom: 20px;
+}
+.contact-frame a {
+  color: #DAA520; /* Doré */
+  text-decoration: none;
+}
+.contact-frame a:hover {
+  text-decoration: underline;
+}
+.contact-footer {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  text-align: right;
+  font-size: 18px;
+  background-color: rgba(245, 222, 179, 0.8);
+  padding: 8px 12px;
+  border-radius: 8px;
+  z-index: 1000;
+}
+.contact-footer a {
+  color: #8B4513;
+  margin: 0 8px;
+  text-decoration: none;
+}
+.contact-footer a:hover {
+  color: #DAA520;
+}
+form {
+  max-width: 100%;
+  padding: 0;
+  background: none;
+}
+label {
+  display: block;
+  margin: 10px 0 5px;
+  color: #8B4513;
+  text-align: left;
+}
+input, textarea {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #DAA520;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+button {
+  background-color: #8B4513;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: block;
+  margin: 20px auto;
+}
+button:hover {
+  background-color: #DAA520;
+}

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact - Boulangerie du Levain</title>
+  <link rel="stylesheet" href="/style/style0.css">
+  <link rel="stylesheet" href="/style/contact.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+  <div class="nav-bar">
+    <a href="/hydratation.html" class="nav-button arrow left"><i class="fas fa-arrow-left"></i></a>
+    <a href="/index.html" class="nav-button home" title="Accueil"><i class="fas fa-home"></i></a>
+    <a href="/recette/recette_levain.html" class="nav-button arrow right"><i class="fas fa-arrow-right"></i></a>
+  </div>
+  <div class="contact-frame">
+    <h1>Contactez-nous</h1>
+    <p>Envoyez un message via le formulaire ci-dessous ou rejoignez notre communauté sur <a href="https://t.me/bouledulevain" target="_blank">Telegram</a>.</p>
+    <form action="https://formspree.io/f/xdkdlrgz" method="POST">
+      <label for="name">Votre nom :</label>
+      <input type="text" id="name" name="name" required>
+      <label for="email">Votre e-mail :</label>
+      <input type="email" id="email" name="_replyto" required>
+      <label for="message">Votre message :</label>
+      <textarea id="message" name="message" required></textarea>
+      <button type="submit">Envoyer</button>
+    </form>
+  </div>
+  <script>
+    function setRandomBackground() {
+      const storedImage = localStorage.getItem('backgroundImage');
+      if (storedImage) {
+        console.log('Using stored background image');
+        document.body.style.backgroundImage = `url('${storedImage}')`;
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+        return;
+      }
+      const apiKey = 'DdLm68RKMaOFFrnhe846qAD91zs3xmz0KSqhsmLnlIo';
+      fetch(`https://api.unsplash.com/photos/random?query=bread&orientation=landscape&client_id=${apiKey}`)
+        .then(response => {
+          if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+          return response.json();
+        })
+        .then(data => {
+          if (data.urls && data.urls.full) {
+            const imageUrl = data.urls.full;
+            document.body.style.backgroundImage = `url('${imageUrl}')`;
+            document.body.style.backgroundSize = 'cover';
+            document.body.style.backgroundPosition = 'center';
+            localStorage.setItem('backgroundImage', imageUrl);
+            console.log('New background image set and stored:', imageUrl);
+          } else {
+            console.error('Erreur: Aucune image reçue de l\'API Unsplash');
+          }
+        })
+        .catch(error => console.error('Erreur lors du chargement de l\'image:', error));
+    }
+    window.onload = setRandomBackground;
+  </script>
+  <script>
+    fetch('footer.html')
+      .then(response => response.text())
+      .then(data => {
+        document.body.insertAdjacentHTML('beforeend', data);
+      });
+  </script>
+</body>
+</html>
