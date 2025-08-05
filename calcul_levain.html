@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculateur de Levain - Boulangerie du Levain</title>
+  <link rel="stylesheet" href="../style/footer.css">
+  <link id="stylesheet" rel="stylesheet" href="../style/style0.css"> <!-- Remplacé dynamiquement -->
+  <link rel="stylesheet" href="../style/nav.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+  <div class="nav-bar">
+    <a href="#" class="nav-button arrow" onclick="history.back(); return false;" id="backButton">&larr;</a>
+    <a href="/" class="nav-button home" title="Accueil"><i class="fas fa-home"></i></a>
+    <a href="#" class="nav-button arrow" onclick="history.forward(); return false;" id="forwardButton">&rarr;</a>
+  </div>
+  <div class="container">
+    <div class="card">
+      <h1>Calculateur de Levain</h1>
+      <p class="intro">Estimez le temps pour atteindre le pic d’activité de votre levain.</p>
+      <form id="levainForm" class="levain-form">
+        <div class="form-group">
+          <label for="roomTemp">Température de la pièce (°C):</label>
+          <input type="number" id="roomTemp" name="roomTemp" min="10" max="40" required>
+        </div>
+        <div class="form-group">
+          <label for="levainState">État du levain:</label>
+          <select id="levainState" name="levainState" required>
+            <option value="healthy">Je suis en pleine forme</option>
+            <option value="cold">J'ai froid (sorti du frigo)</option>
+            <option value="sleepy">J'ai dormi trop longtemps</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="initialAmount">Quantité de levain initial (g):</label>
+          <input type="number" id="initialAmount" name="initialAmount" min="20" max="200" required>
+        </div>
+        <div class="form-group">
+          <label for="refreshAmount">Quantité de rafraîchi (g):</label>
+          <input type="number" id="refreshAmount" name="refreshAmount" min="50" max="500" required>
+          <p class="intro" style="font-size: 0.8rem; margin-top: 4px;">(ex. : 30 g = 15 g farine + 15 g eau pour 50 % d’hydratation, ajustez selon votre recette)</p>
+        </div>
+        <button type="button" id="calculateLevain">Calculer</button>
+      </form>
+      <div id="result" class="hidden" style="background-color: rgba(245, 222, 179, 0.5); border-radius: 8px; padding: 10px; border: 1px solid #DAA520; margin-top: 15px; font-weight: bold;">
+        <p>Le levain atteindra son pic d’activité en environ <span id="timeResult"></span> heures.</p>
+      </div>
+    </div>
+  </div>
+  <script src="../js/nav.js"></script>
+  <script>
+    fetch('footer.html')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Erreur lors du chargement de footer.html');
+        }
+        return response.text();
+      })
+      .then(data => {
+        document.body.insertAdjacentHTML('beforeend', data);
+      })
+      .catch(error => console.error('Erreur:', error));
+    function applyStoredStylesheet() {
+      const styleIndex = localStorage.getItem('styleIndex') || '0';
+      console.log('Applying stylesheet: style' + styleIndex + '.css');
+      document.getElementById('stylesheet').href = `../style/style${styleIndex}.css`;
+    }
+    function setRandomStylesheet() {
+      const styleIndex = new Date().getSeconds() % 10;
+      console.log('Setting styleIndex: ' + styleIndex);
+      localStorage.setItem('styleIndex', styleIndex);
+      applyStoredStylesheet();
+    }
+    function setRandomBackground() {
+      const storedImage = localStorage.getItem('backgroundImage');
+      if (storedImage) {
+        console.log('Using stored background image');
+        document.body.style.backgroundImage = `url('${storedImage}')`;
+        return;
+      }
+      const apiKey = 'DdLm68RKMaOFFrnhe846qAD91zs3xmz0KSqhsmLnlIo';
+      fetch(`https://api.unsplash.com/photos/random?query=bread&orientation=landscape&client_id=${apiKey}`)
+        .then(response => {
+          if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+          return response.json();
+        })
+        .then(data => {
+          if (data.urls && data.urls.full) {
+            const imageUrl = data.urls.full;
+            document.body.style.backgroundImage = `url('${imageUrl}')`;
+            localStorage.setItem('backgroundImage', imageUrl);
+            console.log('New background image set and stored:', imageUrl);
+          } else {
+            console.error('Erreur: Aucune image reçue de l\'API Unsplash');
+          }
+        })
+        .catch(error => console.error('Erreur lors du chargement de l\'image:', error));
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      applyStoredStylesheet();
+      setRandomBackground();
+      document.getElementById('calculateLevain').addEventListener('click', () => {
+        const roomTemp = parseFloat(document.getElementById('roomTemp').value);
+        const levainState = document.getElementById('levainState').value;
+        const initialAmount = parseFloat(document.getElementById('initialAmount').value);
+        const refreshAmount = parseFloat(document.getElementById('refreshAmount').value);
+
+        // Temps de base selon la température ambiante
+        let baseTime = (roomTemp >= 23 && roomTemp <= 25) ? 4 : 5; // 4h à 23-25°C, 5h à 20-22°C
+
+        // Ajustement selon l'état du levain
+        let stateAdjustment = 0;
+        if (levainState === 'cold') stateAdjustment = 2; // +2h pour "J'ai froid"
+        if (levainState === 'sleepy') stateAdjustment = (roomTemp >= 23 && roomTemp <= 25) ? 6 : 7; // +6h ou +7h pour "J'ai dormi trop longtemps"
+
+        // Ajustement léger basé sur la quantité totale (plus de levain réduit légèrement le temps)
+        let amountFactor = (refreshAmount + initialAmount) / 60; // Normalisé sur 60g
+        let time = (baseTime + stateAdjustment) / amountFactor;
+
+        // Limiter le temps entre 2 et 12 heures pour réalisme
+        time = Math.max(2, Math.min(12, time));
+
+        document.getElementById('timeResult').textContent = time.toFixed(1);
+        document.getElementById('result').classList.remove('hidden');
+      });
+    });
+  </script>
+   <script>
+    fetch('footer.html')
+        .then(response => response.text())
+        .then(data => {
+            document.body.insertAdjacentHTML('beforeend', data);
+        });
+    </script>  
+    <script src="/js/nav.js"></script>   
+</body>
+</html>

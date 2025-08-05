@@ -21,7 +21,7 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.4); /* Superposition semi-transparente */
+    background-color: rgba(0, 0, 0, 0.4);
     z-index: -1;
 }
 
@@ -37,7 +37,7 @@ body::before {
 
 /* Carte centrale */
 .card {
-    background-color: rgba(255, 255, 255, 0.95); /* Fond légèrement transparent pour contraste */
+    background-color: rgba(255, 255, 255, 0.95);
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
     padding: 24px;
@@ -45,6 +45,54 @@ body::before {
     width: 100%;
     color: #2d3748;
 }
+
+/* Bouton de lien */
+.button {
+    display: block;
+    width: 100%;
+    padding: 8px;
+    background-color: #9c4221;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: background-color 0.2s;
+    margin-bottom: 12px;
+}
+
+/* Boutons dans .container, .card ou .hydration-form */
+.container button, .card button, .hydration-form button {
+    width: 100%;
+    padding: 8px;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+/* Styles pour le footer */
+.contact-footer {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    text-align: right;
+    font-size: 18px;
+    background-color: rgba(245, 222, 179, 0.7);
+    padding: 8px 12px;
+    border-radius: 8px;
+    z-index: 1000;
+}
+.contact-footer a {
+    color: #8B4513;
+    margin: 0 8px;
+    text-decoration: none;
+}
+.contact-footer a:hover {
+    color: #DAA520;
+}
+/* Reste des styles inchangés */
 
 /* Titre */
 h1 {
@@ -65,7 +113,7 @@ h1 {
 }
 
 /* Bouton de lien */
-.button {    display: block;    width: 100%;    padding: 8px;    background-color: #9c4221;    color: white;    text-align: center;    text-decoration: none;    border-radius: 4px;    font-size: 1rem;    transition: background-color 0.2s;    margin-bottom: 12px;}}
+.button {    display: block;    width: 100%;    padding: 8px;    background-color: #9c4221;    color: white;    text-align: center;    text-decoration: none;    border-radius: 4px;    font-size: 1rem;    transition: background-color 0.2s;    margin-bottom: 12px;}
 
 .form-group label {
     display: block;
