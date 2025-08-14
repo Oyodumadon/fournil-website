@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration - Boulangerie du Levain</title>
+    <link id="stylesheet" rel="stylesheet" href="/style/style0.css">
+    <link rel="stylesheet" href="/style/contact.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+    <div class="nav-bar">
+        <a href="/recette/recette_levain.html" class="nav-button arrow left"><i class="fas fa-arrow-left"></i></a>
+        <a href="/index.html" class="nav-button home disabled" title="Accueil"><i class="fas fa-home"></i></a>
+        <a href="/hydratation.html" class="nav-button arrow right"><i class="fas fa-arrow-right"></i></a>
+    </div>
+    <div class="container">
+        <div class="card">
+            <h1>🥖 Administration des Farines</h1>
+            <p>Gérez les farines et leurs taux d’hydratation pour votre calculateur.</p>
+            <form id="adminForm" class="hydration-form" onsubmit="addFlour(event)">
+                <label for="flourName">Nom de la farine :</label>
+                <input type="text" id="flourName" placeholder="Ex: Farine de sarrasin" required>
+                <label for="hydration">Taux d’hydratation (%) :</label>
+                <input type="number" id="hydration" min="0" step="1" placeholder="Ex: 70" required>
+                <button type="submit" class="button">Ajouter</button>
+            </form>
+            <h3>Farines enregistrées :</h3>
+            <ul id="flourList"></ul>
+        </div>
+    </div>
+    <script>
+        const ADMIN_PASSWORD = 'levain2025';
+
+        function checkPassword() {
+            const password = prompt('Entrez le mot de passe pour accéder à l’administration :');
+            if (password !== ADMIN_PASSWORD) {
+                alert('Mot de passe incorrect.');
+                window.location.href = '/index.html';
+                return false;
+            }
+            return true;
+        }
+
+        function applyStoredStylesheet() {
+            const styleIndex = localStorage.getItem('styleIndex') || '0';
+            document.getElementById('stylesheet').href = `/style/style${styleIndex}.css`;
+        }
+
+        function setRandomStylesheet() {
+            const styleIndex = Math.floor(Math.random() * 10);
+            localStorage.setItem('styleIndex', styleIndex);
+            applyStoredStylesheet();
+        }
+
+        function setRandomBackground() {
+            const storedImage = localStorage.getItem('backgroundImage');
+            if (storedImage) {
+                document.body.style.backgroundImage = `url('${storedImage}')`;
+                return;
+            }
+            const apiKey = 'DdLm68RKMaOFFrnhe846qAD91zs3xmz0KSqhsmLnlIo';
+            fetch(`https://api.unsplash.com/photos/random?query=bread&orientation=landscape&client_id=${apiKey}`)
+                .then(response => response.json())
+                .then(data => {
+                    const imageUrl = data.urls.full;
+                    document.body.style.backgroundImage = `url('${imageUrl}')`;
+                    localStorage.setItem('backgroundImage', imageUrl);
+                });
+        }
+
+        function loadFlours() {
+            const flours = JSON.parse(localStorage.getItem('flours')) || {
+                T55: 60,
+                T65: 65,
+                T80: 70,
+                T110: 75,
+                T150: 80,
+                Seigle: 85,
+                Epeautre: 70,
+                PetitEpeautre: 65,
+                BleEntierMaison: 85
+            };
+            const flourList = document.getElementById('flourList');
+            flourList.innerHTML = '';
+            Object.entries(flours).forEach(([name, hydration]) => {
+                const li = document.createElement('li');
+                li.innerHTML = `${name}: ${hydration}% <button onclick="deleteFlour('${name}')">Supprimer</button>`;
+                flourList.appendChild(li);
+            });
+            return flours;
+        }
+
+        function addFlour(event) {
+            event.preventDefault();
+            const name = document.getElementById('flourName').value.trim();
+            const hydration = parseFloat(document.getElementById('hydration').value);
+            if (!name || isNaN(hydration) || hydration <= 0) {
+                alert('Veuillez entrer un nom et un taux d’hydratation valide.');
+                return;
+            }
+            const flours = loadFlours();
+            flours[name] = hydration;
+            localStorage.setItem('flours', JSON.stringify(flours));
+            document.getElementById('flourName').value = '';
+            document.getElementById('hydration').value = '';
+            loadFlours();
+        }
+
+        function deleteFlour(name) {
+            const flours = loadFlours();
+            delete flours[name];
+            localStorage.setItem('flours', JSON.stringify(flours));
+            loadFlours();
+        }
+
+        if (checkPassword()) {
+            applyStoredStylesheet();
+            setRandomBackground();
+            loadFlours();
+        }
+    </script>
+</body>
+</html>

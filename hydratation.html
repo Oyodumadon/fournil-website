@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculateur d’Hydratation - Boulangerie du Levain</title>
-    <link id="stylesheet" rel="stylesheet" href="style/style0.css">
-    <link rel="stylesheet" href="/style/nav.css">    
+    <link id="stylesheet" rel="stylesheet" href="/style/style0.css">
+    <link rel="stylesheet" href="/style/nav.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-
     <style>
         .hydration-form {
             display: flex;
@@ -25,9 +24,6 @@
             font-size: 16px;
             width: 100%;
             max-width: 200px;
-        }
-        .hydration-form input[readonly] {
-            background-color: #f0f0f0;
         }
         .flour-entry {
             display: flex;
@@ -53,18 +49,32 @@
         }
         .hydration-form .button {
             align-self: center;
-            padding: 8px 16px;
-            background-color: #f5f5f5;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            padding: 10px 20px;
+            background-color: #8B4513; /* Brun */
+            border: 1px solid #DAA520; /* Doré */
+            border-radius: 8px;
             cursor: pointer;
-            color: #333;
+            color: #fff;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 8px;
             transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
         }
         .hydration-form .button:hover {
-            background-color: #e0e0e0;
+            background-color: #DAA520; /* Doré */
             transform: scale(1.1);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            animation: pulse 0.5s ease-in-out;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1.1); }
+        }
+        .hydration-form .button i {
+            font-size: 16px;
         }
         .hydration-result {
             margin-top: 20px;
@@ -93,8 +103,8 @@
 <body>
     <div class="nav-bar">
         <button class="nav-button arrow left" onclick="history.back()" aria-label="Retour à la page précédente"><i class="fas fa-arrow-left"></i></button>
-        <a href="/index.html" class="nav-button home" title="Accueil"><i class="fas fa-home"></i></a>
-        <button class="nav-button arrow right" onclick="history.forward()" aria-label="Page suivante"><i class="fas fa-arrow-right"></i></button>
+        <a class="nav-button home" href="/index.html" title="Accueil"><i class="fas fa-home"></i></a>
+        <button class="nav-button arrow right" id="forwardButton" onclick="history.forward()" aria-label="Page suivante"><i class="fas fa-arrow-right"></i></button>
     </div>
     <div class="container">
         <div class="card">
@@ -121,12 +131,18 @@
                 <div id="flourContainer">
                     <div class="flour-entry">
                         <select name="flourType">
+                            <option value="T45">Farine de blé (T45)</option>
+                            <option value="T55">Farine de blé (T55)</option>
                             <option value="T65">Farine de blé (T65)</option>
                             <option value="T80">Farine de blé (T80)</option>
                             <option value="T110">Farine complète (T110)</option>
                             <option value="T150">Farine intégrale (T150)</option>
+                            <option value="Ble_entier">Farine de blé entier moulue maison</option>
                             <option value="Seigle">Farine de seigle</option>
+                            <option value="Ble_dur">Farine de blé dur</option>
+                            <option value="Manitoba">Farine Manitoba</option>
                             <option value="Epeautre">Farine d’épeautre</option>
+                            <option value="Petit_epeautre">Farine de petit épeautre</option>
                         </select>
                         <input type="number" name="flourWeight" min="0" step="1" placeholder="Poids (g)" required>
                     </div>
@@ -139,30 +155,22 @@
                     <option value="dryYeast">Levure boulangère sèche</option>
                 </select>
                 <label for="leavenWeight">Poids du levain/levure (g) :</label>
-                <input type="number" id="leavenWeight" name="leavenWeight" min="0" step="1">
+                <input id="leavenWeight" type="number" name="leavenWeight" min="0" step="1">
                 <label for="saltPercentage">Pourcentage de sel (%) :</label>
-                <input type="number" id="saltPercentage" name="saltPercentage" min="0" step="0.1" value="2" required>
-                <label for="waterWeight">Poids de l’eau (g, calculé) :</label>
-                <input type="number" id="waterWeight" name="waterWeight" min="0" step="1" readonly>
-                <label for="saltWeight">Poids du sel (g, calculé) :</label>
-                <input type="number" id="saltWeight" name="saltWeight" min="0" step="1" readonly>
-                <label for="targetHydration">Taux d’hydratation cible (%) :</label>
-                <input type="number" id="targetHydration" name="targetHydration" min="0" step="1" value="70" required>
+                <input id="saltPercentage" type="number" name="saltPercentage" min="0" step="0.1" value="2" required>
                 <label for="flourTemp">Température de la farine (°C) :</label>
-                <input type="number" id="flourTemp" name="flourTemp" min="0" step="1" required>
-                <label for="waterTemp">Température de l’eau (°C, calculée) :</label>
-                <input type="number" id="waterTemp" name="waterTemp" min="0" step="1" readonly>
+                <input id="flourTemp" type="number" name="flourTemp" min="0" step="1" required>
                 <label for="ambientTemp">Température ambiante (°C) :</label>
-                <input type="number" id="ambientTemp" name="ambientTemp" min="0" step="1" required>
+                <input id="ambientTemp" type="number" name="ambientTemp" min="0" step="1" required>
                 <label for="saveName">Nom de la sauvegarde :</label>
-                <input type="text" id="saveName" name="saveName" placeholder="Ma recette">
+                <input id="saveName" type="text" name="saveName" placeholder="Ma recette">
                 <label for="loadRecipe">Charger une recette sauvegardée :</label>
                 <select id="loadRecipe" name="loadRecipe" onchange="loadRecipe()">
                     <option value="">-- Sélectionner --</option>
                 </select>
                 <div style="display: flex; gap: 16px; justify-content: center;">
-                    <button type="submit" class="button">Valider</button>
-                    <button type="button" class="button" onclick="saveRecipe()">Sauvegarder</button>
+                    <button type="submit" class="button"><i class="fas fa-check"></i> Valider</button>
+                    <button type="button" class="button" onclick="saveRecipe()"><i class="fas fa-save"></i> Sauvegarder</button>
                 </div>
             </form>
             <div class="hydration-result" id="result"></div>
@@ -184,90 +192,196 @@
             'pain_mie': { hydration: 60, tdb: 22.5, observation: 'Pâte tendre mie fine' }
         };
 
+        const flourHydrationRates = {
+            "T45": 57.5, "T55": 62.5, "T65": 67.5, "T80": 72.5, "T110": 77.5,
+            "T150": 82.5, "Ble_entier": 80.5, "Seigle": 85, "Ble_dur": 67.5,
+            "Manitoba": 75, "Epeautre": 67.5, "Petit_epeautre": 62.5
+        };
+
+        const flourOptionsHTML = `
+            <option value="T45">Farine de blé (T45)</option>
+            <option value="T55">Farine de blé (T55)</option>
+            <option value="T65">Farine de blé (T65)</option>
+            <option value="T80">Farine de blé (T80)</option>
+            <option value="T110">Farine complète (T110)</option>
+            <option value="T150">Farine intégrale (T150)</option>
+            <option value="Ble_entier">Farine de blé entier moulue maison</option>
+            <option value="Seigle">Farine de seigle</option>
+            <option value="Ble_dur">Farine de blé dur</option>
+            <option value="Manitoba">Farine Manitoba</option>
+            <option value="Epeautre">Farine d’épeautre</option>
+            <option value="Petit_epeautre">Farine de petit épeautre</option>
+        `;
+
         function applyStoredStylesheet() {
             const styleIndex = localStorage.getItem('styleIndex') || '0';
-            console.log('Applying stylesheet: style' + styleIndex + '.css');
-            document.getElementById('stylesheet').href = `style/style${styleIndex}.css`;
+            const ss = document.getElementById('stylesheet');
+            if (ss) ss.href = `/style/style${styleIndex}.css`;
         }
+
         function setRandomStylesheet() {
-            const styleIndex = new Date().getSeconds() % 10;
-            console.log('Setting styleIndex: ' + styleIndex);
+            const styleIndex = Math.floor(Math.random() * 10);
             localStorage.setItem('styleIndex', styleIndex);
             applyStoredStylesheet();
         }
+
         function setRandomBackground() {
-            const storedImage = localStorage.getItem('backgroundImage');
-            if (storedImage) {
-                console.log('Using stored background image');
-                document.body.style.backgroundImage = `url('${storedImage}')`;
-                return;
-            }
-            const apiKey = 'DdLm68RKMaOFFrnhe846qAD91zs3xmz0KSqhsmLnlIo';
-            fetch(`https://api.unsplash.com/photos/random?query=bread&orientation=landscape&client_id=${apiKey}`)
-                .then(response => {
-                    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.urls && data.urls.full) {
+            try {
+                const storedImage = localStorage.getItem('backgroundImage');
+                if (storedImage) {
+                    document.body.style.backgroundImage = `url('${storedImage}')`;
+                    return;
+                }
+                const apiKey = 'DdLm68RKMaOFFrnhe846qAD91zs3xmz0KSqhsmLnlIo';
+                fetch(`https://api.unsplash.com/photos/random?query=bread&orientation=landscape&client_id=${apiKey}`)
+                    .then(response => {
+                        if (!response.ok) throw new Error('Échec de l’appel Unsplash');
+                        return response.json();
+                    })
+                    .then(data => {
                         const imageUrl = data.urls.full;
                         document.body.style.backgroundImage = `url('${imageUrl}')`;
                         localStorage.setItem('backgroundImage', imageUrl);
-                        console.log('New background image set and stored:', imageUrl);
-                    } else {
-                        console.error('Erreur: Aucune image reçue de l\'API Unsplash');
-                    }
-                })
-                .catch(error => console.error('Erreur lors du chargement de l\'image:', error));
+                    })
+                    .catch(error => {
+                        console.error('Erreur lors du chargement du fond:', error);
+                        document.body.style.backgroundImage = 'url(/images/default-bread.jpg)';
+                    });
+            } catch (e) {
+                console.error('Erreur d’initialisation du fond:', e);
+                document.body.style.backgroundImage = 'url(/images/default-bread.jpg)';
+            }
         }
+
         function updateForwardButton() {
             const forwardButton = document.getElementById('forwardButton');
-            forwardButton.classList.add('disabled');
+            if (forwardButton) forwardButton.classList.add('disabled');
         }
+
         function addFlourEntry() {
             const flourContainer = document.getElementById('flourContainer');
             const newEntry = document.createElement('div');
             newEntry.className = 'flour-entry';
             newEntry.innerHTML = `
-                <select name="flourType">
-                    <option value="T65">Farine de blé (T65)</option>
-                    <option value="T80">Farine de blé (T80)</option>
-                    <option value="T110">Farine complète (T110)</option>
-                    <option value="T150">Farine intégrale (T150)</option>
-                    <option value="Seigle">Farine de seigle</option>
-                    <option value="Epeautre">Farine d’épeautre</option>
-                </select>
+                <select name="flourType">${flourOptionsHTML}</select>
                 <input type="number" name="flourWeight" min="0" step="1" placeholder="Poids (g)" required>
                 <button type="button" onclick="this.parentNode.remove()">Supprimer</button>
             `;
             flourContainer.appendChild(newEntry);
         }
+
         function updateTargetHydration() {
             const recipeSelect = document.getElementById('recipe');
-            const targetHydration = document.getElementById('targetHydration');
             const recipeObservation = document.getElementById('recipeObservation');
-            const [recipeKey, hydration] = recipeSelect.value.split('|');
-            targetHydration.value = hydration;
+            const recipeKey = recipeSelect.value.split('|')[0];
             recipeObservation.textContent = recipeData[recipeKey]?.observation || '';
         }
+
+        function validateForm(flours, leavenWeight, saltPercentage, flourTemp, ambientTemp) {
+            if (flours.length === 0 || flours.some(f => f.weight <= 0)) {
+                alert('Veuillez ajouter au moins une farine avec un poids positif.');
+                return false;
+            }
+            if (isNaN(saltPercentage) || saltPercentage <= 0) {
+                alert('Le pourcentage de sel doit être positif.');
+                return false;
+            }
+            if (isNaN(flourTemp) || flourTemp <= 0) {
+                alert('La température de la farine doit être positive.');
+                return false;
+            }
+            if (isNaN(ambientTemp) || ambientTemp <= 0) {
+                alert('La température ambiante doit être positive.');
+                return false;
+            }
+            return true;
+        }
+
+        function calculateHydration(event) {
+            event.preventDefault();
+            const recipeValue = document.getElementById('recipe').value;
+            const parts = recipeValue.split('|');
+            const recipeKey = parts[0];
+            const tdbTarget = parts.length > 2 ? parseFloat(parts[2]) : (recipeData[recipeKey]?.tdb || 24);
+
+            const floursEntries = Array.from(document.querySelectorAll('.flour-entry')).map(entry => ({
+                type: entry.querySelector('select').value,
+                weight: parseFloat(entry.querySelector('input').value) || 0
+            })).filter(f => f.weight > 0);
+
+            const leavenType = document.getElementById('leavenType').value;
+            let leavenWeightInput = parseFloat(document.getElementById('leavenWeight').value) || 0;
+            const saltPercentage = parseFloat(document.getElementById('saltPercentage').value) || 2;
+            const flourTemp = parseFloat(document.getElementById('flourTemp').value) || 0;
+            const ambientTemp = parseFloat(document.getElementById('ambientTemp').value) || 0;
+
+            if (!validateForm(floursEntries, leavenWeightInput, saltPercentage, flourTemp, ambientTemp)) {
+                return;
+            }
+
+            let totalFlourFromEntries = floursEntries.reduce((s, f) => s + f.weight, 0);
+            if (leavenType === 'sourdough' && leavenWeightInput === 0) {
+                leavenWeightInput = parseFloat((totalFlourFromEntries * 0.20).toFixed(1));
+                document.getElementById('leavenWeight').value = leavenWeightInput;
+            }
+
+            let totalWaterForFlours = 0;
+            let waterDetails = "<ul>";
+            floursEntries.forEach(f => {
+                const rate = flourHydrationRates[f.type] !== undefined ? flourHydrationRates[f.type] : (recipeData[recipeKey]?.hydration || 65);
+                const w = f.weight * (rate / 100);
+                totalWaterForFlours += w;
+                waterDetails += `<li>${f.weight} g ${f.type} × ${rate}% = <span class="highlight-result">${w.toFixed(1)} g</span> d'eau</li>`;
+            });
+            waterDetails += "</ul>";
+
+            let extraFlourFromLeaven = 0;
+            let extraWaterFromLeaven = 0;
+            if (leavenType === 'sourdough' && leavenWeightInput > 0) {
+                extraFlourFromLeaven = leavenWeightInput * 0.5;
+                extraWaterFromLeaven = leavenWeightInput * 0.5;
+            }
+
+            const totalFlour = totalFlourFromEntries + extraFlourFromLeaven;
+            const totalWaterNeeded = totalWaterForFlours + extraWaterFromLeaven;
+            const waterToAdd = totalWaterNeeded - extraWaterFromLeaven;
+            const saltWeight = totalFlour * (saltPercentage / 100);
+            const waterTemp = tdbTarget - flourTemp - ambientTemp;
+            const hydrationPercent = totalFlour > 0 ? (totalWaterNeeded / totalFlour) * 100 : 0;
+
+            let resultHtml = `<p><strong>Hydratation moyenne :</strong> <span class="highlight-result">${hydrationPercent.toFixed(1)}%</span></p>`;
+            resultHtml += `<p><strong>Eau totale prévue :</strong> <span class="highlight-result">${totalWaterNeeded.toFixed(1)} g</span> (<span class="highlight-result">${waterToAdd.toFixed(1)} g</span> ajoutée + <span class="highlight-result">${extraWaterFromLeaven.toFixed(1)} g</span> venant du levain)</p>`;
+            resultHtml += `<p><strong>Détail par farine :</strong> ${waterDetails}</p>`;
+            if (leavenType === 'sourdough') {
+                resultHtml += `<p><strong>Levain :</strong> <span class="highlight-result">${leavenWeightInput.toFixed(1)} g</span> (contribue <span class="highlight-result">${extraFlourFromLeaven.toFixed(1)} g</span> farine + <span class="highlight-result">${extraWaterFromLeaven.toFixed(1)} g</span> eau${leavenWeightInput === totalFlourFromEntries * 0.20 ? ', suggéré à 20% du poids des farines' : ''})</p>`;
+            } else {
+                resultHtml += `<p><strong>Levain / levure :</strong> ${document.getElementById('leavenType').options[document.getElementById('leavenType').selectedIndex].text}`;
+                if (leavenWeightInput > 0) resultHtml += ` — poids saisi: <span class="highlight-result">${leavenWeightInput.toFixed(1)} g</span>`;
+                resultHtml += `</p>`;
+            }
+            resultHtml += `<p><strong>Sel :</strong> <span class="highlight-result">${saltWeight.toFixed(1)} g</span> (${saltPercentage}%)</p>`;
+            resultHtml += `<p><strong>Température de l'eau calculée :</strong> <span class="highlight-result">${waterTemp.toFixed(1)}°C</span> (cible Tdb ${tdbTarget}°C)</p>`;
+
+            document.getElementById('result').innerHTML = resultHtml;
+        }
+
         function saveRecipe() {
             const saveName = document.getElementById('saveName').value.trim();
             if (!saveName) {
                 alert('Veuillez entrer un nom pour la sauvegarde.');
                 return;
             }
+            const flours = Array.from(document.querySelectorAll('.flour-entry')).map(entry => ({
+                type: entry.querySelector('select').value,
+                weight: parseFloat(entry.querySelector('input').value) || 0
+            }));
             const recipe = {
                 recipe: document.getElementById('recipe').value,
-                flours: Array.from(document.querySelectorAll('.flour-entry')).map(entry => ({
-                    type: entry.querySelector('select').value,
-                    weight: parseFloat(entry.querySelector('input').value) || 0
-                })),
+                flours,
                 leavenType: document.getElementById('leavenType').value,
                 leavenWeight: parseFloat(document.getElementById('leavenWeight').value) || 0,
                 saltPercentage: parseFloat(document.getElementById('saltPercentage').value) || 2,
-                targetHydration: parseFloat(document.getElementById('targetHydration').value) || 0,
                 flourTemp: parseFloat(document.getElementById('flourTemp').value) || 0,
-                waterTemp: parseFloat(document.getElementById('waterTemp').value) || 0,
                 ambientTemp: parseFloat(document.getElementById('ambientTemp').value) || 0
             };
             let savedRecipes = JSON.parse(localStorage.getItem('savedRecipes') || '{}');
@@ -276,8 +390,10 @@
             updateSavedRecipesDropdown();
             alert('Recette sauvegardée avec succès !');
         }
+
         function updateSavedRecipesDropdown() {
             const loadRecipeSelect = document.getElementById('loadRecipe');
+            if (!loadRecipeSelect) return;
             loadRecipeSelect.innerHTML = '<option value="">-- Sélectionner --</option>';
             const savedRecipes = JSON.parse(localStorage.getItem('savedRecipes') || '{}');
             for (const name in savedRecipes) {
@@ -287,6 +403,7 @@
                 loadRecipeSelect.appendChild(option);
             }
         }
+
         function loadRecipe() {
             const loadRecipeSelect = document.getElementById('loadRecipe');
             const saveName = loadRecipeSelect.value;
@@ -296,7 +413,6 @@
             if (!recipe) return;
 
             document.getElementById('recipe').value = recipe.recipe;
-            document.getElementById('targetHydration').value = recipe.targetHydration;
             document.getElementById('leavenType').value = recipe.leavenType;
             document.getElementById('leavenWeight').value = recipe.leavenWeight;
             document.getElementById('saltPercentage').value = recipe.saltPercentage;
@@ -309,64 +425,16 @@
                 const newEntry = document.createElement('div');
                 newEntry.className = 'flour-entry';
                 newEntry.innerHTML = `
-                    <select name="flourType">
-                        <option value="T65" ${flour.type === 'T65' ? 'selected' : ''}>Farine de blé (T65)</option>
-                        <option value="T80" ${flour.type === 'T80' ? 'selected' : ''}>Farine de blé (T80)</option>
-                        <option value="T110" ${flour.type === 'T110' ? 'selected' : ''}>Farine complète (T110)</option>
-                        <option value="T150" ${flour.type === 'T150' ? 'selected' : ''}>Farine intégrale (T150)</option>
-                        <option value="Seigle" ${flour.type === 'Seigle' ? 'selected' : ''}>Farine de seigle</option>
-                        <option value="Epeautre" ${flour.type === 'Epeautre' ? 'selected' : ''}>Farine d’épeautre</option>
-                    </select>
+                    <select name="flourType">${flourOptionsHTML}</select>
                     <input type="number" name="flourWeight" min="0" step="1" value="${flour.weight}" required>
                     <button type="button" onclick="this.parentNode.remove()">Supprimer</button>
                 `;
                 flourContainer.appendChild(newEntry);
+                newEntry.querySelector('select').value = flour.type;
             });
             updateTargetHydration();
         }
-        function calculateHydration(event) {
-            event.preventDefault();
-            const recipeValue = document.getElementById('recipe').value;
-            const [recipeKey, hydration, tdbTarget] = recipeValue.split('|').map(val => parseFloat(val) || val);
-            const flours = Array.from(document.querySelectorAll('.flour-entry')).map(entry => ({
-                type: entry.querySelector('select').value,
-                weight: parseFloat(entry.querySelector('input').value) || 0
-            }));
-            const leavenType = document.getElementById('leavenType').value;
-            const leavenWeight = parseFloat(document.getElementById('leavenWeight').value) || 0;
-            const saltPercentage = parseFloat(document.getElementById('saltPercentage').value) || 2;
-            const targetHydration = parseFloat(document.getElementById('targetHydration').value) || 0;
-            const flourTemp = parseFloat(document.getElementById('flourTemp').value) || 0;
-            const ambientTemp = parseFloat(document.getElementById('ambientTemp').value) || 0;
 
-            // Calculer total farine
-            const totalFlour = flours.reduce((sum, flour) => sum + flour.weight, 0) + (leavenType === 'sourdough' ? leavenWeight * 0.5 : 0);
-
-            // Calculer l’eau nécessaire pour le taux d’hydratation cible
-            const totalWater = totalFlour * (targetHydration / 100);
-            const waterWeight = totalWater - (leavenType === 'sourdough' ? leavenWeight * 0.5 : 0);
-            document.getElementById('waterWeight').value = waterWeight > 0 ? waterWeight.toFixed(1) : 0;
-
-            // Calculer le sel
-            const saltWeight = totalFlour * (saltPercentage / 100);
-            document.getElementById('saltWeight').value = saltWeight.toFixed(1);
-
-            // Calculer la température de l’eau
-            const waterTemp = tdbTarget - ambientTemp + flourTemp;
-            document.getElementById('waterTemp').value = waterTemp > 0 ? waterTemp.toFixed(1) : 0;
-
-            // Calculer le taux d’hydratation actuel
-            const currentHydration = totalFlour > 0 ? (totalWater / totalFlour) * 100 : 0;
-
-            // Résultats
-            let resultHtml = `<p>Votre pâte a un taux d’hydratation de ${currentHydration.toFixed(1)}%.</p>`;
-            resultHtml += `<p><span class="highlight-result">Poids de l’eau calculé : ${waterWeight.toFixed(1)} g.</span></p>`;
-            resultHtml += `<p><span class="highlight-result">Poids du sel calculé : ${saltWeight.toFixed(1)} g (à ${saltPercentage}%).</span></p>`;
-            resultHtml += `<p><span class="highlight-result">Température de l’eau calculée : ${waterTemp.toFixed(1)}°C</span> pour atteindre la température de base cible (${tdbTarget}°C).</p>`;
-            resultHtml += `<p>Température de base actuelle : ${(flourTemp + waterTemp + ambientTemp).toFixed(1)}°C.</p>`;
-
-            document.getElementById('result').innerHTML = resultHtml;
-        }
         applyStoredStylesheet();
         setRandomBackground();
         updateForwardButton();
@@ -374,12 +442,13 @@
         updateTargetHydration();
     </script>
     <script>
-    fetch('footer.html')
-        .then(response => response.text())
-        .then(data => {
-            document.body.insertAdjacentHTML('beforeend', data);
-        });
-    </script>  
-    <script src="/js/nav.js"></script> 
+        fetch('/footer.html')
+            .then(response => response.text())
+            .then(data => {
+                document.body.insertAdjacentHTML('beforeend', data);
+            })
+            .catch(error => console.error('Erreur de chargement du footer:', error));
+    </script>
+    <script src="/js/nav.js"></script>
 </body>
 </html>

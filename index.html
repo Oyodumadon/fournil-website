@@ -14,6 +14,7 @@
         <a href="/index.html" class="nav-button home" title="Accueil"><i class="fas fa-home"></i></a>
         <button class="nav-button arrow right" onclick="history.forward()" aria-label="Page suivante"><i class="fas fa-arrow-right"></i></button>
     </div>
+    <div id="particles-js"></div>
     <div class="container">
         <div class="card">
             <h1>Boulangerie du Levain</h1>
@@ -25,6 +26,7 @@
             <a href="calcul_levain.html" class="button" onclick="setRandomStylesheet()">Calculateur de Levain</a>
         </div>
     </div>
+
     <script>
         function applyStoredStylesheet() {
             const styleIndex = localStorage.getItem('styleIndex') || '0';
@@ -77,6 +79,22 @@
             document.body.insertAdjacentHTML('beforeend', data);
         });
     </script>
+    <body>
+  <!-- Inclusion de Particles.js via CDN -->
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+  <!-- Votre script pour configurer les particules -->
+  <script>
+    particlesJS('particles-js', {
+      particles: {
+        number: { value: 80, density: { enable: true, value_area: 800 } },
+        color: { value: '#ffffff' },
+        shape: { type: 'circle' },
+        opacity: { value: 0.5, random: true },
+        size: { value: 3, random: true },
+        move: { enable: true, speed: 2 }
+      }
+    });
+  </script>
     <script src="/js/nav.js"></script>
-</body>
+ </body>
 </html>
