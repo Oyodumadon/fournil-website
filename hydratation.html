@@ -50,8 +50,8 @@
         .hydration-form .button {
             align-self: center;
             padding: 10px 20px;
-            background-color: #8B4513; /* Brun */
-            border: 1px solid #DAA520; /* Doré */
+            background-color: #8B4513;
+            border: 1px solid #DAA520;
             border-radius: 8px;
             cursor: pointer;
             color: #fff;
@@ -63,7 +63,7 @@
             transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
         }
         .hydration-form .button:hover {
-            background-color: #DAA520; /* Doré */
+            background-color: #DAA520;
             transform: scale(1.1);
             box-shadow: 0 4px 8px rgba(0,0,0,0.3);
             animation: pulse 0.5s ease-in-out;
@@ -98,6 +98,19 @@
             padding: 2px 4px;
             border-radius: 4px;
         }
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .slider-container input[type="range"] {
+            width: 150px;
+            accent-color: #8B4513;
+        }
+        .slider-container span {
+            font-size: 14px;
+            color: #333;
+        }
     </style>
 </head>
 <body>
@@ -130,20 +143,7 @@
                 <label>Farines utilisées :</label>
                 <div id="flourContainer">
                     <div class="flour-entry">
-                        <select name="flourType">
-                            <option value="T45">Farine de blé (T45)</option>
-                            <option value="T55">Farine de blé (T55)</option>
-                            <option value="T65">Farine de blé (T65)</option>
-                            <option value="T80">Farine de blé (T80)</option>
-                            <option value="T110">Farine complète (T110)</option>
-                            <option value="T150">Farine intégrale (T150)</option>
-                            <option value="Ble_entier">Farine de blé entier moulue maison</option>
-                            <option value="Seigle">Farine de seigle</option>
-                            <option value="Ble_dur">Farine de blé dur</option>
-                            <option value="Manitoba">Farine Manitoba</option>
-                            <option value="Epeautre">Farine d’épeautre</option>
-                            <option value="Petit_epeautre">Farine de petit épeautre</option>
-                        </select>
+                        <select name="flourType"></select>
                         <input type="number" name="flourWeight" min="0" step="1" placeholder="Poids (g)" required>
                     </div>
                 </div>
@@ -154,6 +154,8 @@
                     <option value="freshYeast">Levure boulangère fraîche</option>
                     <option value="dryYeast">Levure boulangère sèche</option>
                 </select>
+                <label for="leavenFlourType">Farine du levain :</label>
+                <select id="leavenFlourType" name="leavenFlourType"></select>
                 <label for="leavenWeight">Poids du levain/levure (g) :</label>
                 <input id="leavenWeight" type="number" name="leavenWeight" min="0" step="1">
                 <label for="saltPercentage">Pourcentage de sel (%) :</label>
@@ -162,6 +164,23 @@
                 <input id="flourTemp" type="number" name="flourTemp" min="0" step="1" required>
                 <label for="ambientTemp">Température ambiante (°C) :</label>
                 <input id="ambientTemp" type="number" name="ambientTemp" min="0" step="1" required>
+                <label for="kneadingType">Type de pétrissage :</label>
+                <select id="kneadingType" name="kneadingType">
+                    <option value="manual">Pétrissage manuel</option>
+                    <option value="machine">Pétrissage au robot</option>
+                </select>
+                <label for="autolyse">Autolyse :</label>
+                <select id="autolyse" name="autolyse">
+                    <option value="none" selected>Pas d’autolyse</option>
+                    <option value="30min">30 minutes</option>
+                    <option value="1h">1 heure</option>
+                    <option value="1h30">1 heure 30</option>
+                </select>
+                <label for="hydrationAdjustment">Ajustement de l’hydratation (%) :</label>
+                <div class="slider-container">
+                    <input type="range" id="hydrationAdjustment" name="hydrationAdjustment" min="-5" max="5" step="0.1" value="0" oninput="calculateHydration(new Event('input'))">
+                    <span id="adjustmentValue">0%</span>
+                </div>
                 <label for="saveName">Nom de la sauvegarde :</label>
                 <input id="saveName" type="text" name="saveName" placeholder="Ma recette">
                 <label for="loadRecipe">Charger une recette sauvegardée :</label>
@@ -177,6 +196,7 @@
         </div>
     </div>
     <script>
+        // Déclarations au début pour éviter la TDZ
         const recipeData = {
             'pain_blanc_classique': { hydration: 65, tdb: 23.5, observation: 'Pain de mie baguette tradition' },
             'pain_complet': { hydration: 75, tdb: 24.5, observation: 'Farine complète absorption plus élevée' },
@@ -198,31 +218,32 @@
             "Manitoba": 75, "Epeautre": 67.5, "Petit_epeautre": 62.5
         };
 
-        const flourOptionsHTML = `
-            <option value="T45">Farine de blé (T45)</option>
-            <option value="T55">Farine de blé (T55)</option>
-            <option value="T65">Farine de blé (T65)</option>
-            <option value="T80">Farine de blé (T80)</option>
-            <option value="T110">Farine complète (T110)</option>
-            <option value="T150">Farine intégrale (T150)</option>
-            <option value="Ble_entier">Farine de blé entier moulue maison</option>
-            <option value="Seigle">Farine de seigle</option>
-            <option value="Ble_dur">Farine de blé dur</option>
-            <option value="Manitoba">Farine Manitoba</option>
-            <option value="Epeautre">Farine d’épeautre</option>
-            <option value="Petit_epeautre">Farine de petit épeautre</option>
-        `;
+        function loadFlours() {
+            const userId = 'default'; // À remplacer par l'authentification réelle
+            return JSON.parse(localStorage.getItem(`flours_${userId}`) || '{}');
+        }
+
+        function populateFlourOptions() {
+            const combinedFlourRates = { ...flourHydrationRates, ...loadFlours() };
+            const flourSelects = document.querySelectorAll('select[name="flourType"], #leavenFlourType');
+            flourSelects.forEach(select => {
+                select.innerHTML = '';
+                Object.keys(combinedFlourRates).forEach(flour => {
+                    const option = document.createElement('option');
+                    option.value = flour;
+                    option.textContent = flour;
+                    select.appendChild(option);
+                });
+                if (select.id === 'leavenFlourType') {
+                    select.value = 'T65'; // T65 par défaut pour le levain
+                }
+            });
+        }
 
         function applyStoredStylesheet() {
             const styleIndex = localStorage.getItem('styleIndex') || '0';
             const ss = document.getElementById('stylesheet');
             if (ss) ss.href = `/style/style${styleIndex}.css`;
-        }
-
-        function setRandomStylesheet() {
-            const styleIndex = Math.floor(Math.random() * 10);
-            localStorage.setItem('styleIndex', styleIndex);
-            applyStoredStylesheet();
         }
 
         function setRandomBackground() {
@@ -263,11 +284,12 @@
             const newEntry = document.createElement('div');
             newEntry.className = 'flour-entry';
             newEntry.innerHTML = `
-                <select name="flourType">${flourOptionsHTML}</select>
+                <select name="flourType"></select>
                 <input type="number" name="flourWeight" min="0" step="1" placeholder="Poids (g)" required>
                 <button type="button" onclick="this.parentNode.remove()">Supprimer</button>
             `;
             flourContainer.appendChild(newEntry);
+            populateFlourOptions();
         }
 
         function updateTargetHydration() {
@@ -302,7 +324,7 @@
             const recipeValue = document.getElementById('recipe').value;
             const parts = recipeValue.split('|');
             const recipeKey = parts[0];
-            const tdbTarget = parts.length > 2 ? parseFloat(parts[2]) : (recipeData[recipeKey]?.tdb || 24);
+            const tdbTarget = parts.length > 2 && !isNaN(parseFloat(parts[2])) ? parseFloat(parts[2]) : (recipeData[recipeKey]?.tdb || 24);
 
             const floursEntries = Array.from(document.querySelectorAll('.flour-entry')).map(entry => ({
                 type: entry.querySelector('select').value,
@@ -311,24 +333,29 @@
 
             const leavenType = document.getElementById('leavenType').value;
             let leavenWeightInput = parseFloat(document.getElementById('leavenWeight').value) || 0;
+            const leavenFlourType = document.getElementById('leavenFlourType').value;
             const saltPercentage = parseFloat(document.getElementById('saltPercentage').value) || 2;
             const flourTemp = parseFloat(document.getElementById('flourTemp').value) || 0;
             const ambientTemp = parseFloat(document.getElementById('ambientTemp').value) || 0;
+            const kneadingType = document.getElementById('kneadingType').value;
+            const autolyse = document.getElementById('autolyse').value || 'none';
+            const hydrationAdjustment = parseFloat(document.getElementById('hydrationAdjustment').value) || 0;
 
             if (!validateForm(floursEntries, leavenWeightInput, saltPercentage, flourTemp, ambientTemp)) {
                 return;
             }
 
-            let totalFlourFromEntries = floursEntries.reduce((s, f) => s + f.weight, 0);
             if (leavenType === 'sourdough' && leavenWeightInput === 0) {
-                leavenWeightInput = parseFloat((totalFlourFromEntries * 0.20).toFixed(1));
+                leavenWeightInput = parseFloat((floursEntries.reduce((s, f) => s + f.weight, 0) * 0.20).toFixed(1));
                 document.getElementById('leavenWeight').value = leavenWeightInput;
             }
 
+            const combinedFlourRates = { ...flourHydrationRates, ...loadFlours() };
+            let totalFlourFromEntries = floursEntries.reduce((s, f) => s + f.weight, 0);
             let totalWaterForFlours = 0;
             let waterDetails = "<ul>";
             floursEntries.forEach(f => {
-                const rate = flourHydrationRates[f.type] !== undefined ? flourHydrationRates[f.type] : (recipeData[recipeKey]?.hydration || 65);
+                const rate = combinedFlourRates[f.type] !== undefined ? combinedFlourRates[f.type] : (recipeData[recipeKey]?.hydration || 65);
                 const w = f.weight * (rate / 100);
                 totalWaterForFlours += w;
                 waterDetails += `<li>${f.weight} g ${f.type} × ${rate}% = <span class="highlight-result">${w.toFixed(1)} g</span> d'eau</li>`;
@@ -337,30 +364,65 @@
 
             let extraFlourFromLeaven = 0;
             let extraWaterFromLeaven = 0;
+            let leavenFlourWater = 0;
             if (leavenType === 'sourdough' && leavenWeightInput > 0) {
                 extraFlourFromLeaven = leavenWeightInput * 0.5;
                 extraWaterFromLeaven = leavenWeightInput * 0.5;
+                const leavenFlourHydration = combinedFlourRates[leavenFlourType] !== undefined ? combinedFlourRates[leavenFlourType] : (recipeData[recipeKey]?.hydration || 65);
+                leavenFlourWater = extraFlourFromLeaven * (leavenFlourHydration / 100);
             }
 
             const totalFlour = totalFlourFromEntries + extraFlourFromLeaven;
-            const totalWaterNeeded = totalWaterForFlours + extraWaterFromLeaven;
-            const waterToAdd = totalWaterNeeded - extraWaterFromLeaven;
+            const waterToAdd = totalWaterForFlours - extraWaterFromLeaven - leavenFlourWater;
+            const adjustedWaterToAdd = waterToAdd * (1 + hydrationAdjustment / 100);
             const saltWeight = totalFlour * (saltPercentage / 100);
-            const waterTemp = tdbTarget - flourTemp - ambientTemp;
-            const hydrationPercent = totalFlour > 0 ? (totalWaterNeeded / totalFlour) * 100 : 0;
+
+            // Mise à jour de l'affichage du pourcentage d'ajustement
+            document.getElementById('adjustmentValue').textContent = `${hydrationAdjustment.toFixed(1)}%`;
+
+            // Ajustement pour l'autolyse : perte de température estimée
+            let autolyseTempLoss = 0;
+            if (autolyse === '30min') {
+                autolyseTempLoss = 0.5;
+            } else if (autolyse === '1h') {
+                autolyseTempLoss = 1.0;
+            } else if (autolyse === '1h30') {
+                autolyseTempLoss = 1.5;
+            }
+
+            // Ajuster la température cible pour compenser la perte pendant l'autolyse
+            const adjustedTdbTarget = tdbTarget + autolyseTempLoss;
+            const adjustment = (kneadingType === 'machine') ? 8 : 0;
+            const tb = Math.round(3 * adjustedTdbTarget - adjustment);
+            const waterTemp = tb - flourTemp - ambientTemp;
+
+            // Validation pour éviter une température d'eau négative ou irréaliste
+            let finalWaterTemp = waterTemp < 0 ? 0 : waterTemp;
+            finalWaterTemp = finalWaterTemp > 60 ? 60 : finalWaterTemp;
+            finalWaterTemp = Math.round(finalWaterTemp);
+
+            const hydrationPercent = totalFlour > 0 ? ((totalWaterForFlours + extraWaterFromLeaven) / totalFlour) * 100 : 0;
 
             let resultHtml = `<p><strong>Hydratation moyenne :</strong> <span class="highlight-result">${hydrationPercent.toFixed(1)}%</span></p>`;
-            resultHtml += `<p><strong>Eau totale prévue :</strong> <span class="highlight-result">${totalWaterNeeded.toFixed(1)} g</span> (<span class="highlight-result">${waterToAdd.toFixed(1)} g</span> ajoutée + <span class="highlight-result">${extraWaterFromLeaven.toFixed(1)} g</span> venant du levain)</p>`;
+            resultHtml += `<p><strong>Eau totale prévue :</strong> <span class="highlight-result">${(totalWaterForFlours + extraWaterFromLeaven).toFixed(1)} g</span></p>`;
+            resultHtml += `<p><strong>Eau à ajouter (base) :</strong> <span class="highlight-result">${waterToAdd.toFixed(1)} g</span> (après déduction de <span class="highlight-result">${extraWaterFromLeaven.toFixed(1)} g</span> du levain et <span class="highlight-result">${leavenFlourWater.toFixed(1)} g</span> pour la farine du levain)</p>`;
+            resultHtml += `<p><strong>Eau ajustée :</strong> <span class="highlight-result">${adjustedWaterToAdd.toFixed(1)} g</span> (ajustement de <span class="highlight-result">${hydrationAdjustment.toFixed(1)}%</span>)</p>`;
             resultHtml += `<p><strong>Détail par farine :</strong> ${waterDetails}</p>`;
             if (leavenType === 'sourdough') {
-                resultHtml += `<p><strong>Levain :</strong> <span class="highlight-result">${leavenWeightInput.toFixed(1)} g</span> (contribue <span class="highlight-result">${extraFlourFromLeaven.toFixed(1)} g</span> farine + <span class="highlight-result">${extraWaterFromLeaven.toFixed(1)} g</span> eau${leavenWeightInput === totalFlourFromEntries * 0.20 ? ', suggéré à 20% du poids des farines' : ''})</p>`;
+                resultHtml += `<p><strong>Levain :</strong> <span class="highlight-result">${leavenWeightInput.toFixed(1)} g</span> (<span class="highlight-result">${extraFlourFromLeaven.toFixed(1)} g</span> ${leavenFlourType} + <span class="highlight-result">${extraWaterFromLeaven.toFixed(1)} g</span> eau${leavenWeightInput === totalFlourFromEntries * 0.20 ? ', suggéré à 20% du poids des farines' : ''})</p>`;
             } else {
                 resultHtml += `<p><strong>Levain / levure :</strong> ${document.getElementById('leavenType').options[document.getElementById('leavenType').selectedIndex].text}`;
                 if (leavenWeightInput > 0) resultHtml += ` — poids saisi: <span class="highlight-result">${leavenWeightInput.toFixed(1)} g</span>`;
                 resultHtml += `</p>`;
             }
             resultHtml += `<p><strong>Sel :</strong> <span class="highlight-result">${saltWeight.toFixed(1)} g</span> (${saltPercentage}%)</p>`;
-            resultHtml += `<p><strong>Température de l'eau calculée :</strong> <span class="highlight-result">${waterTemp.toFixed(1)}°C</span> (cible Tdb ${tdbTarget}°C)</p>`;
+            resultHtml += `<p><strong>Température de l'eau calculée :</strong> <span class="highlight-result">${finalWaterTemp}°C</span> (cible température de la pâte ${tdbTarget}°C après autolyse, TB utilisée ${tb}°C${autolyse !== 'none' ? `, perte autolyse ${autolyseTempLoss}°C` : ', aucune autolyse sélectionnée'})</p>`;
+            if (finalWaterTemp === 0 || finalWaterTemp === 60) {
+                resultHtml += `<p style="color: red;">Attention : la température de l'eau est à la limite (0°C ou 60°C). Ajustez les températures d'entrée ou vérifiez les conditions ambiantes.</p>`;
+            }
+            if (adjustedWaterToAdd < 0) {
+                resultHtml += `<p style="color: red;">Attention : l’ajustement d’hydratation rend l’eau à ajouter négative. Veuillez réduire l’ajustement négatif.</p>`;
+            }
 
             document.getElementById('result').innerHTML = resultHtml;
         }
@@ -379,10 +441,14 @@
                 recipe: document.getElementById('recipe').value,
                 flours,
                 leavenType: document.getElementById('leavenType').value,
+                leavenFlourType: document.getElementById('leavenFlourType').value,
                 leavenWeight: parseFloat(document.getElementById('leavenWeight').value) || 0,
                 saltPercentage: parseFloat(document.getElementById('saltPercentage').value) || 2,
                 flourTemp: parseFloat(document.getElementById('flourTemp').value) || 0,
-                ambientTemp: parseFloat(document.getElementById('ambientTemp').value) || 0
+                ambientTemp: parseFloat(document.getElementById('ambientTemp').value) || 0,
+                kneadingType: document.getElementById('kneadingType').value,
+                autolyse: document.getElementById('autolyse').value || 'none',
+                hydrationAdjustment: parseFloat(document.getElementById('hydrationAdjustment').value) || 0
             };
             let savedRecipes = JSON.parse(localStorage.getItem('savedRecipes') || '{}');
             savedRecipes[saveName] = recipe;
@@ -414,10 +480,15 @@
 
             document.getElementById('recipe').value = recipe.recipe;
             document.getElementById('leavenType').value = recipe.leavenType;
+            document.getElementById('leavenFlourType').value = recipe.leavenFlourType || 'T65';
             document.getElementById('leavenWeight').value = recipe.leavenWeight;
             document.getElementById('saltPercentage').value = recipe.saltPercentage;
             document.getElementById('flourTemp').value = recipe.flourTemp;
             document.getElementById('ambientTemp').value = recipe.ambientTemp;
+            document.getElementById('kneadingType').value = recipe.kneadingType || 'manual';
+            document.getElementById('autolyse').value = recipe.autolyse || 'none';
+            document.getElementById('hydrationAdjustment').value = recipe.hydrationAdjustment || 0;
+            document.getElementById('adjustmentValue').textContent = `${(recipe.hydrationAdjustment || 0).toFixed(1)}%`;
 
             const flourContainer = document.getElementById('flourContainer');
             flourContainer.innerHTML = '';
@@ -425,23 +496,27 @@
                 const newEntry = document.createElement('div');
                 newEntry.className = 'flour-entry';
                 newEntry.innerHTML = `
-                    <select name="flourType">${flourOptionsHTML}</select>
+                    <select name="flourType"></select>
                     <input type="number" name="flourWeight" min="0" step="1" value="${flour.weight}" required>
                     <button type="button" onclick="this.parentNode.remove()">Supprimer</button>
                 `;
                 flourContainer.appendChild(newEntry);
+                populateFlourOptions();
                 newEntry.querySelector('select').value = flour.type;
             });
             updateTargetHydration();
+            calculateHydration(new Event('input')); // Recalculer après chargement
         }
 
-        applyStoredStylesheet();
-        setRandomBackground();
-        updateForwardButton();
-        updateSavedRecipesDropdown();
-        updateTargetHydration();
-    </script>
-    <script>
+        window.onload = () => {
+            applyStoredStylesheet();
+            setRandomBackground();
+            updateForwardButton();
+            updateSavedRecipesDropdown();
+            updateTargetHydration();
+            populateFlourOptions();
+        };
+
         fetch('/footer.html')
             .then(response => response.text())
             .then(data => {
