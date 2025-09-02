@@ -17,13 +17,18 @@
         .hydration-form label {
             font-weight: bold;
         }
-        .hydration-form input, .hydration-form select {
+        .hydration-form input, .hydration-form select, .hydration-form textarea {
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 16px;
             width: 100%;
             max-width: 200px;
+        }
+        .hydration-form textarea {
+            resize: vertical;
+            min-height: 60px;
+            max-height: 150px;
         }
         .flour-entry {
             display: flex;
@@ -68,6 +73,12 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.3);
             animation: pulse 0.5s ease-in-out;
         }
+        .hydration-form .button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
         @keyframes pulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.15); }
@@ -110,6 +121,12 @@
         .slider-container span {
             font-size: 14px;
             color: #333;
+        }
+        .recipe-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
         }
     </style>
 </head>
@@ -181,12 +198,18 @@
                     <input type="range" id="hydrationAdjustment" name="hydrationAdjustment" min="-5" max="5" step="0.1" value="0" oninput="calculateHydration(new Event('input'))">
                     <span id="adjustmentValue">0%</span>
                 </div>
+                <label for="recipeComment">Commentaire sur la recette :</label>
+                <textarea id="recipeComment" name="recipeComment" placeholder="Ajoutez vos notes (par exemple, texture de la pâte, ajustements)"></textarea>
                 <label for="saveName">Nom de la sauvegarde :</label>
                 <input id="saveName" type="text" name="saveName" placeholder="Ma recette">
                 <label for="loadRecipe">Charger une recette sauvegardée :</label>
-                <select id="loadRecipe" name="loadRecipe" onchange="loadRecipe()">
-                    <option value="">-- Sélectionner --</option>
-                </select>
+                <div class="recipe-actions">
+                    <select id="loadRecipe" name="loadRecipe">
+                        <option value="">-- Sélectionner --</option>
+                    </select>
+                    <button type="button" id="loadRecipeButton" class="button" disabled><i class="fas fa-upload"></i> Charger la recette</button>
+                    <button type="button" id="deleteRecipeButton" class="button" onclick="deleteRecipe()" disabled><i class="fas fa-trash"></i> Supprimer la recette</button>
+                </div>
                 <div style="display: flex; gap: 16px; justify-content: center;">
                     <button type="submit" class="button"><i class="fas fa-check"></i> Valider</button>
                     <button type="button" class="button" onclick="saveRecipe()"><i class="fas fa-save"></i> Sauvegarder</button>
@@ -219,14 +242,23 @@
         };
 
         function loadFlours() {
+            console.log('loadFlours: Chargement des farines personnalisées');
             const userId = 'default'; // À remplacer par l'authentification réelle
-            return JSON.parse(localStorage.getItem(`flours_${userId}`) || '{}');
+            const flours = JSON.parse(localStorage.getItem(`flours_${userId}`) || '{}');
+            console.log('loadFlours: Farines trouvées', flours);
+            return flours;
         }
 
         function populateFlourOptions() {
+            console.log('populateFlourOptions: Début du remplissage des options de farine');
             const combinedFlourRates = { ...flourHydrationRates, ...loadFlours() };
             const flourSelects = document.querySelectorAll('select[name="flourType"], #leavenFlourType');
+            if (!flourSelects.length) {
+                console.error('populateFlourOptions: Aucun select trouvé');
+                return;
+            }
             flourSelects.forEach(select => {
+                const currentValue = select.value;
                 select.innerHTML = '';
                 Object.keys(combinedFlourRates).forEach(flour => {
                     const option = document.createElement('option');
@@ -234,19 +266,20 @@
                     option.textContent = flour;
                     select.appendChild(option);
                 });
-                if (select.id === 'leavenFlourType') {
-                    select.value = 'T65'; // T65 par défaut pour le levain
-                }
+                select.value = currentValue || (select.id === 'leavenFlourType' ? 'T65' : '');
+                console.log(`populateFlourOptions: Options remplies pour ${select.id}, valeur=${select.value}`);
             });
         }
 
         function applyStoredStylesheet() {
+            console.log('applyStoredStylesheet: Application de la feuille de style');
             const styleIndex = localStorage.getItem('styleIndex') || '0';
             const ss = document.getElementById('stylesheet');
             if (ss) ss.href = `/style/style${styleIndex}.css`;
         }
 
         function setRandomBackground() {
+            console.log('setRandomBackground: Définition du fond');
             try {
                 const storedImage = localStorage.getItem('backgroundImage');
                 if (storedImage) {
@@ -265,21 +298,23 @@
                         localStorage.setItem('backgroundImage', imageUrl);
                     })
                     .catch(error => {
-                        console.error('Erreur lors du chargement du fond:', error);
+                        console.error('setRandomBackground: Erreur lors du chargement du fond:', error);
                         document.body.style.backgroundImage = 'url(/images/default-bread.jpg)';
                     });
             } catch (e) {
-                console.error('Erreur d’initialisation du fond:', e);
+                console.error('setRandomBackground: Erreur d’initialisation:', e);
                 document.body.style.backgroundImage = 'url(/images/default-bread.jpg)';
             }
         }
 
         function updateForwardButton() {
+            console.log('updateForwardButton: Mise à jour du bouton suivant');
             const forwardButton = document.getElementById('forwardButton');
             if (forwardButton) forwardButton.classList.add('disabled');
         }
 
         function addFlourEntry() {
+            console.log('addFlourEntry: Ajout d’une nouvelle entrée de farine');
             const flourContainer = document.getElementById('flourContainer');
             const newEntry = document.createElement('div');
             newEntry.className = 'flour-entry';
@@ -290,9 +325,11 @@
             `;
             flourContainer.appendChild(newEntry);
             populateFlourOptions();
+            console.log('addFlourEntry: Nouvelle entrée ajoutée');
         }
 
         function updateTargetHydration() {
+            console.log('updateTargetHydration: Mise à jour de l’observation');
             const recipeSelect = document.getElementById('recipe');
             const recipeObservation = document.getElementById('recipeObservation');
             const recipeKey = recipeSelect.value.split('|')[0];
@@ -300,6 +337,7 @@
         }
 
         function validateForm(flours, leavenWeight, saltPercentage, flourTemp, ambientTemp) {
+            console.log('validateForm: Validation des données', { flours, leavenWeight, saltPercentage, flourTemp, ambientTemp });
             if (flours.length === 0 || flours.some(f => f.weight <= 0)) {
                 alert('Veuillez ajouter au moins une farine avec un poids positif.');
                 return false;
@@ -321,6 +359,7 @@
 
         function calculateHydration(event) {
             event.preventDefault();
+            console.log('calculateHydration: Début du calcul');
             const recipeValue = document.getElementById('recipe').value;
             const parts = recipeValue.split('|');
             const recipeKey = parts[0];
@@ -340,6 +379,7 @@
             const kneadingType = document.getElementById('kneadingType').value;
             const autolyse = document.getElementById('autolyse').value || 'none';
             const hydrationAdjustment = parseFloat(document.getElementById('hydrationAdjustment').value) || 0;
+            const recipeComment = document.getElementById('recipeComment').value.trim();
 
             if (!validateForm(floursEntries, leavenWeightInput, saltPercentage, flourTemp, ambientTemp)) {
                 return;
@@ -377,10 +417,8 @@
             const adjustedWaterToAdd = waterToAdd * (1 + hydrationAdjustment / 100);
             const saltWeight = totalFlour * (saltPercentage / 100);
 
-            // Mise à jour de l'affichage du pourcentage d'ajustement
             document.getElementById('adjustmentValue').textContent = `${hydrationAdjustment.toFixed(1)}%`;
 
-            // Ajustement pour l'autolyse : perte de température estimée
             let autolyseTempLoss = 0;
             if (autolyse === '30min') {
                 autolyseTempLoss = 0.5;
@@ -390,13 +428,11 @@
                 autolyseTempLoss = 1.5;
             }
 
-            // Ajuster la température cible pour compenser la perte pendant l'autolyse
             const adjustedTdbTarget = tdbTarget + autolyseTempLoss;
             const adjustment = (kneadingType === 'machine') ? 8 : 0;
             const tb = Math.round(3 * adjustedTdbTarget - adjustment);
             const waterTemp = tb - flourTemp - ambientTemp;
 
-            // Validation pour éviter une température d'eau négative ou irréaliste
             let finalWaterTemp = waterTemp < 0 ? 0 : waterTemp;
             finalWaterTemp = finalWaterTemp > 60 ? 60 : finalWaterTemp;
             finalWaterTemp = Math.round(finalWaterTemp);
@@ -417,6 +453,9 @@
             }
             resultHtml += `<p><strong>Sel :</strong> <span class="highlight-result">${saltWeight.toFixed(1)} g</span> (${saltPercentage}%)</p>`;
             resultHtml += `<p><strong>Température de l'eau calculée :</strong> <span class="highlight-result">${finalWaterTemp}°C</span> (cible température de la pâte ${tdbTarget}°C après autolyse, TB utilisée ${tb}°C${autolyse !== 'none' ? `, perte autolyse ${autolyseTempLoss}°C` : ', aucune autolyse sélectionnée'})</p>`;
+            if (recipeComment) {
+                resultHtml += `<p><strong>Commentaire :</strong> <span class="highlight-result">${recipeComment}</span></p>`;
+            }
             if (finalWaterTemp === 0 || finalWaterTemp === 60) {
                 resultHtml += `<p style="color: red;">Attention : la température de l'eau est à la limite (0°C ou 60°C). Ajustez les températures d'entrée ou vérifiez les conditions ambiantes.</p>`;
             }
@@ -425,12 +464,15 @@
             }
 
             document.getElementById('result').innerHTML = resultHtml;
+            console.log('calculateHydration: Calcul terminé');
         }
 
         function saveRecipe() {
+            console.log('saveRecipe: Début de la sauvegarde');
             const saveName = document.getElementById('saveName').value.trim();
             if (!saveName) {
                 alert('Veuillez entrer un nom pour la sauvegarde.');
+                console.log('saveRecipe: Nom de sauvegarde vide');
                 return;
             }
             const flours = Array.from(document.querySelectorAll('.flour-entry')).map(entry => ({
@@ -448,73 +490,243 @@
                 ambientTemp: parseFloat(document.getElementById('ambientTemp').value) || 0,
                 kneadingType: document.getElementById('kneadingType').value,
                 autolyse: document.getElementById('autolyse').value || 'none',
-                hydrationAdjustment: parseFloat(document.getElementById('hydrationAdjustment').value) || 0
+                hydrationAdjustment: parseFloat(document.getElementById('hydrationAdjustment').value) || 0,
+                recipeComment: document.getElementById('recipeComment').value.trim()
             };
             let savedRecipes = JSON.parse(localStorage.getItem('savedRecipes') || '{}');
             savedRecipes[saveName] = recipe;
             localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
             updateSavedRecipesDropdown();
             alert('Recette sauvegardée avec succès !');
+            console.log('saveRecipe: Recette sauvegardée', recipe);
         }
 
         function updateSavedRecipesDropdown() {
+            console.log('updateSavedRecipesDropdown: Mise à jour de la liste déroulante');
             const loadRecipeSelect = document.getElementById('loadRecipe');
-            if (!loadRecipeSelect) return;
+            const loadRecipeButton = document.getElementById('loadRecipeButton');
+            const deleteRecipeButton = document.getElementById('deleteRecipeButton');
+            if (!loadRecipeSelect || !loadRecipeButton || !deleteRecipeButton) {
+                console.error('updateSavedRecipesDropdown: Éléments DOM manquants');
+                return;
+            }
             loadRecipeSelect.innerHTML = '<option value="">-- Sélectionner --</option>';
             const savedRecipes = JSON.parse(localStorage.getItem('savedRecipes') || '{}');
+            console.log('updateSavedRecipesDropdown: Recettes trouvées', savedRecipes);
             for (const name in savedRecipes) {
                 const option = document.createElement('option');
                 option.value = name;
                 option.textContent = name;
                 loadRecipeSelect.appendChild(option);
             }
+            const hasSelection = loadRecipeSelect.value !== '';
+            loadRecipeButton.disabled = !hasSelection;
+            deleteRecipeButton.disabled = !hasSelection;
+            console.log('updateSavedRecipesDropdown: Liste déroulante mise à jour, hasSelection=', hasSelection);
+        }
+
+        function isFormModified() {
+            console.log('isFormModified: Vérification des modifications du formulaire');
+            const recipe = document.getElementById('recipe').value;
+            const flours = Array.from(document.querySelectorAll('.flour-entry')).map(entry => ({
+                type: entry.querySelector('select').value,
+                weight: parseFloat(entry.querySelector('input').value) || 0
+            })).filter(f => f.weight > 0);
+            const leavenWeight = document.getElementById('leavenWeight').value.trim();
+            const flourTemp = document.getElementById('flourTemp').value.trim();
+            const ambientTemp = document.getElementById('ambientTemp').value.trim();
+            const recipeComment = document.getElementById('recipeComment').value.trim();
+            const saveName = document.getElementById('saveName').value.trim();
+            const hydrationAdjustment = parseFloat(document.getElementById('hydrationAdjustment').value) || 0;
+
+            const isModified = (
+                recipe !== 'pain_blanc_classique|65|23.5' ||
+                flours.length > 0 ||
+                leavenWeight !== '' ||
+                flourTemp !== '' ||
+                ambientTemp !== '' ||
+                recipeComment !== '' ||
+                saveName !== '' ||
+                hydrationAdjustment !== 0
+            );
+            console.log('isFormModified: Formulaire modifié ?', isModified);
+            return isModified;
         }
 
         function loadRecipe() {
+            console.log('loadRecipe: Début du chargement');
             const loadRecipeSelect = document.getElementById('loadRecipe');
+            if (!loadRecipeSelect) {
+                console.error('loadRecipe: Élément loadRecipeSelect manquant');
+                alert('Erreur : Élément de sélection introuvable.');
+                return;
+            }
             const saveName = loadRecipeSelect.value;
-            if (!saveName) return;
+            console.log('loadRecipe: Nom de la recette sélectionnée', saveName);
+            if (!saveName) {
+                alert('Veuillez sélectionner une recette à charger.');
+                console.log('loadRecipe: Aucune recette sélectionnée');
+                return;
+            }
+
+            // Vérifier si le formulaire est modifié
+            if (isFormModified() && !confirm('Charger cette recette remplacera les données actuelles. Continuer ?')) {
+                console.log('loadRecipe: Chargement annulé par l’utilisateur');
+                return;
+            }
+
             const savedRecipes = JSON.parse(localStorage.getItem('savedRecipes') || '{}');
             const recipe = savedRecipes[saveName];
-            if (!recipe) return;
+            if (!recipe) {
+                alert('Erreur : Recette non trouvée.');
+                console.error('loadRecipe: Recette non trouvée pour', saveName);
+                return;
+            }
+            console.log('loadRecipe: Recette trouvée', recipe);
 
-            document.getElementById('recipe').value = recipe.recipe;
-            document.getElementById('leavenType').value = recipe.leavenType;
-            document.getElementById('leavenFlourType').value = recipe.leavenFlourType || 'T65';
-            document.getElementById('leavenWeight').value = recipe.leavenWeight;
-            document.getElementById('saltPercentage').value = recipe.saltPercentage;
-            document.getElementById('flourTemp').value = recipe.flourTemp;
-            document.getElementById('ambientTemp').value = recipe.ambientTemp;
-            document.getElementById('kneadingType').value = recipe.kneadingType || 'manual';
-            document.getElementById('autolyse').value = recipe.autolyse || 'none';
-            document.getElementById('hydrationAdjustment').value = recipe.hydrationAdjustment || 0;
-            document.getElementById('adjustmentValue').textContent = `${(recipe.hydrationAdjustment || 0).toFixed(1)}%`;
+            try {
+                // Vérifier les champs obligatoires
+                if (!recipe.recipe || !Array.isArray(recipe.flours)) {
+                    throw new Error('Données de recette incomplètes ou mal formées');
+                }
 
-            const flourContainer = document.getElementById('flourContainer');
-            flourContainer.innerHTML = '';
-            recipe.flours.forEach(flour => {
-                const newEntry = document.createElement('div');
-                newEntry.className = 'flour-entry';
-                newEntry.innerHTML = `
-                    <select name="flourType"></select>
-                    <input type="number" name="flourWeight" min="0" step="1" value="${flour.weight}" required>
-                    <button type="button" onclick="this.parentNode.remove()">Supprimer</button>
-                `;
-                flourContainer.appendChild(newEntry);
-                populateFlourOptions();
-                newEntry.querySelector('select').value = flour.type;
+                // Remplir les champs avec des valeurs par défaut si undefined
+                document.getElementById('recipe').value = recipe.recipe || 'pain_blanc_classique|65|23.5';
+                console.log('loadRecipe: recipe défini à', document.getElementById('recipe').value);
+                document.getElementById('leavenType').value = recipe.leavenType || 'sourdough';
+                console.log('loadRecipe: leavenType défini à', document.getElementById('leavenType').value);
+                document.getElementById('leavenFlourType').value = recipe.leavenFlourType || 'T65';
+                console.log('loadRecipe: leavenFlourType défini à', document.getElementById('leavenFlourType').value);
+                document.getElementById('leavenWeight').value = recipe.leavenWeight != null ? recipe.leavenWeight : '';
+                console.log('loadRecipe: leavenWeight défini à', document.getElementById('leavenWeight').value);
+                document.getElementById('saltPercentage').value = recipe.saltPercentage != null ? recipe.saltPercentage : 2;
+                console.log('loadRecipe: saltPercentage défini à', document.getElementById('saltPercentage').value);
+                document.getElementById('flourTemp').value = recipe.flourTemp != null ? recipe.flourTemp : '';
+                console.log('loadRecipe: flourTemp défini à', document.getElementById('flourTemp').value);
+                document.getElementById('ambientTemp').value = recipe.ambientTemp != null ? recipe.ambientTemp : '';
+                console.log('loadRecipe: ambientTemp défini à', document.getElementById('ambientTemp').value);
+                document.getElementById('kneadingType').value = recipe.kneadingType || 'manual';
+                console.log('loadRecipe: kneadingType défini à', document.getElementById('kneadingType').value);
+                document.getElementById('autolyse').value = recipe.autolyse || 'none';
+                console.log('loadRecipe: autolyse défini à', document.getElementById('autolyse').value);
+                document.getElementById('hydrationAdjustment').value = recipe.hydrationAdjustment || 0;
+                document.getElementById('adjustmentValue').textContent = `${(recipe.hydrationAdjustment || 0).toFixed(1)}%`;
+                console.log('loadRecipe: hydrationAdjustment défini à', document.getElementById('hydrationAdjustment').value);
+                document.getElementById('recipeComment').value = recipe.recipeComment || '';
+                console.log('loadRecipe: recipeComment défini à', document.getElementById('recipeComment').value);
+                document.getElementById('saveName').value = saveName;
+                console.log('loadRecipe: saveName défini à', saveName);
+
+                // Mettre à jour les farines
+                const flourContainer = document.getElementById('flourContainer');
+                if (!flourContainer) {
+                    throw new Error('Élément flourContainer manquant');
+                }
+                flourContainer.innerHTML = '';
+                if (Array.isArray(recipe.flours) && recipe.flours.length > 0) {
+                    console.log('loadRecipe: Chargement des farines', recipe.flours);
+                    recipe.flours.forEach(flour => {
+                        if (flour.type && flour.weight != null) {
+                            const newEntry = document.createElement('div');
+                            newEntry.className = 'flour-entry';
+                            newEntry.innerHTML = `
+                                <select name="flourType"></select>
+                                <input type="number" name="flourWeight" min="0" step="1" value="${flour.weight}" required>
+                                <button type="button" onclick="this.parentNode.remove()">Supprimer</button>
+                            `;
+                            flourContainer.appendChild(newEntry);
+                            populateFlourOptions();
+                            const select = newEntry.querySelector('select');
+                            if (select.querySelector(`option[value="${flour.type}"]`)) {
+                                select.value = flour.type;
+                                console.log('loadRecipe: Farine définie', { type: flour.type, weight: flour.weight });
+                            } else {
+                                console.warn('loadRecipe: Type de farine non trouvé', flour.type);
+                                select.value = 'T65';
+                            }
+                        } else {
+                            console.warn('loadRecipe: Données de farine invalides', flour);
+                        }
+                    });
+                } else {
+                    console.log('loadRecipe: Aucune farine dans la recette, ajout d’une entrée par défaut');
+                    const newEntry = document.createElement('div');
+                    newEntry.className = 'flour-entry';
+                    newEntry.innerHTML = `
+                        <select name="flourType"></select>
+                        <input type="number" name="flourWeight" min="0" step="1" placeholder="Poids (g)" required>
+                        <button type="button" onclick="this.parentNode.remove()">Supprimer</button>
+                    `;
+                    flourContainer.appendChild(newEntry);
+                    populateFlourOptions();
+                }
+
+                updateTargetHydration();
+                calculateHydration(new Event('input'));
+                alert('Recette chargée avec succès !');
+                console.log('loadRecipe: Recette chargée avec succès');
+            } catch (error) {
+                console.error('loadRecipe: Erreur lors du chargement', error);
+                alert('Erreur lors du chargement de la recette. Veuillez vérifier la console pour plus de détails.');
+            }
+        }
+
+        function deleteRecipe() {
+            console.log('deleteRecipe: Début de la suppression');
+            const loadRecipeSelect = document.getElementById('loadRecipe');
+            const saveName = loadRecipeSelect.value;
+            if (!saveName) {
+                alert('Veuillez sélectionner une recette à supprimer.');
+                console.log('deleteRecipe: Aucune recette sélectionnée');
+                return;
+            }
+            if (!confirm(`Voulez-vous vraiment supprimer la recette "${saveName}" ?`)) {
+                console.log('deleteRecipe: Suppression annulée');
+                return;
+            }
+            let savedRecipes = JSON.parse(localStorage.getItem('savedRecipes') || '{}');
+            delete savedRecipes[saveName];
+            localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
+            updateSavedRecipesDropdown();
+            document.getElementById('saveName').value = '';
+            document.getElementById('recipeComment').value = '';
+            loadRecipeSelect.value = '';
+            alert(`Recette "${saveName}" supprimée avec succès !`);
+            console.log('deleteRecipe: Recette supprimée', saveName);
+            calculateHydration(new Event('input'));
+        }
+
+        function initializeEventListeners() {
+            console.log('initializeEventListeners: Initialisation des écouteurs');
+            const loadRecipeSelect = document.getElementById('loadRecipe');
+            const loadRecipeButton = document.getElementById('loadRecipeButton');
+            const deleteRecipeButton = document.getElementById('deleteRecipeButton');
+            if (!loadRecipeSelect || !loadRecipeButton || !deleteRecipeButton) {
+                console.error('initializeEventListeners: Éléments DOM manquants');
+                return;
+            }
+            loadRecipeSelect.addEventListener('change', () => {
+                const hasSelection = loadRecipeSelect.value !== '';
+                loadRecipeButton.disabled = !hasSelection;
+                deleteRecipeButton.disabled = !hasSelection;
+                console.log('loadRecipe change: hasSelection=', hasSelection);
             });
-            updateTargetHydration();
-            calculateHydration(new Event('input')); // Recalculer après chargement
+            loadRecipeButton.addEventListener('click', (event) => {
+                event.preventDefault();
+                console.log('loadRecipeButton: Clic détecté');
+                loadRecipe();
+            });
         }
 
         window.onload = () => {
+            console.log('window.onload: Initialisation de la page');
             applyStoredStylesheet();
             setRandomBackground();
             updateForwardButton();
             updateSavedRecipesDropdown();
             updateTargetHydration();
             populateFlourOptions();
+            initializeEventListeners();
         };
 
         fetch('/footer.html')
