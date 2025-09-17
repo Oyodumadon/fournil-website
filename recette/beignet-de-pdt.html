@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beignets de Pomme de Terre au Levain au Four - Boulangerie</title>
+    <link id="stylesheet" rel="stylesheet" href="style/style0.css">
+    <link rel="stylesheet" href="/style/nav.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+    <div class="nav-bar">
+        <button class="nav-button arrow left" onclick="history.back()" aria-label="Retour à la page précédente"><i class="fas fa-arrow-left"></i></button>
+        <a href="/index.html" class="nav-button home" title="Accueil"><i class="fas fa-home"></i></a>
+        <button class="nav-button arrow right" id="forwardButton" onclick="history.forward()" aria-label="Page suivante"><i class="fas fa-arrow-right"></i></button>
+    </div>
+    <div class="container">
+        <div class="card">
+            <h1>🥔 Beignets de Pomme de Terre au Levain au Four</h1>
+            <p>Voici une version au four de la recette de beignets de pomme de terre avec du levain. Cette méthode est plus légère et tout aussi savoureuse.</p>
+            <h2>🥣 Ingrédients</h2>
+            <ul>
+                <li>500 g de pommes de terre</li>
+                <li>100 g de levain (liquide ou semi-liquide)</li>
+                <li>150 g de farine (T65 ou T80)</li>
+                <li>1 œuf (optionnel)</li>
+                <li>5 g de sel</li>
+                <li>Poivre (au goût)</li>
+                <li>2 cuillères à soupe d’huile d’olive (environ 30 ml)</li>
+                <li>Herbes (persil, ciboulette, au goût)</li>
+            </ul>
+            <h2>👨‍🍳 Préparation</h2>
+            <ol>
+                <li><strong>Préparation des pommes de terre :</strong> Épluchez et faites cuire les pommes de terre dans de l’eau salée jusqu’à ce qu’elles soient tendres. Égouttez-les et écrasez-les en purée.</li>
+                <li><strong>Mélange des ingrédients :</strong> Dans un grand bol, mélangez la purée de pommes de terre, le levain, la farine, l’œuf (si utilisé), le sel, le poivre et les herbes. Mélangez jusqu’à obtenir une pâte homogène.</li>
+                <li><strong>Préchauffage du four :</strong> Préchauffez votre four à 200°C.</li>
+                <li><strong>Formation des beignets :</strong> Sur une plaque de cuisson recouverte de papier sulfurisé, déposez des cuillerées de pâte en formant des petits tas ou des galettes.</li>
+                <li><strong>Ajout d’huile :</strong> Arrosez légèrement les beignets avec de l’huile d’olive pour les aider à dorer.</li>
+                <li><strong>Cuisson :</strong> Enfournez les beignets pendant environ 20-25 minutes, ou jusqu’à ce qu’ils soient dorés et croustillants sur le dessus. Vous pouvez les retourner à mi-cuisson pour une cuisson uniforme.</li>
+                <li><strong>Service :</strong> Servez chaud, accompagné de votre sauce préférée ou d’une salade.</li>
+            </ol>
+            <h2>📝 Astuces</h2>
+            <ul>
+                <li>Pour une texture plus croustillante, ajoutez une pincée de bicarbonate de soude à la pâte.</li>
+                <li>Variez les herbes selon vos goûts : du thym ou de l’origan peuvent apporter une touche différente.</li>
+                <li>Conservez les beignets au réfrigérateur et réchauffez-les au four à 180°C pendant 5-10 minutes pour retrouver leur croustillant.</li>
+            </ul>
+        </div>
+    </div>
+    <script>
+        function applyStoredStylesheet() {
+            const styleIndex = localStorage.getItem('styleIndex') || '0';
+            console.log('Applying stylesheet: style' + styleIndex + '.css');
+            document.getElementById('stylesheet').href = `../style/style${styleIndex}.css`;
+        }
+
+        function setRandomStylesheet() {
+            const styleIndex = new Date().getSeconds() % 10;
+            console.log('Setting styleIndex: ' + styleIndex);
+            localStorage.setItem('styleIndex', styleIndex);
+            applyStoredStylesheet();
+        }
+
+        function setRandomBackground() {
+            const storedImage = localStorage.getItem('backgroundImage');
+            if (storedImage) {
+                console.log('Using stored background image');
+                document.body.style.backgroundImage = `url('${storedImage}')`;
+                return;
+            }
+            const apiKey = 'DdLm68RKMaOFFrnhe846qAD91zs3xmz0KSqhsmLnlIo';
+            fetch(`https://api.unsplash.com/photos/random?query=potato&orientation=landscape&client_id=${apiKey}`)
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.urls && data.urls.full) {
+                        const imageUrl = data.urls.full;
+                        document.body.style.backgroundImage = `url('${imageUrl}')`;
+                        localStorage.setItem('backgroundImage', imageUrl);
+                        console.log('New background image set and stored:', imageUrl);
+                    } else {
+                        console.error('Erreur: Aucune image reçue de l\'API Unsplash');
+                    }
+                })
+                .catch(error => console.error('Erreur lors du chargement de l\'image:', error));
+        }
+
+        function updateForwardButton() {
+            const forwardButton = document.getElementById('forwardButton');
+            forwardButton.classList.add('disabled');
+        }
+
+        applyStoredStylesheet();
+        setRandomBackground();
+        updateForwardButton();
+    </script>
+    <script>
+        fetch('../footer.html')
+            .then(response => response.text())
+            .then(data => {
+                document.body.insertAdjacentHTML('beforeend', data);
+            });
+    </script>
+    <script src="/js/nav.js"></script>
+</body>
+</html>

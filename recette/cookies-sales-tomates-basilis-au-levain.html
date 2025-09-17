@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cookies salés au levain, tomates séchées & basilic - Boulangerie</title>
+<link id="stylesheet" rel="stylesheet" href="../style/style0.css">
+<style>
+.nav-bar {
+display: flex;
+justify-content: center;
+gap: 8px;
+margin-bottom: 16px;
+}
+.nav-button {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+width: 40px;
+height: 40px;
+padding: 8px;
+background-color: #f5f5f5;
+border: 1px solid #ccc;
+border-radius: 4px;
+text-decoration: none;
+color: #333;
+font-size: 20px;
+transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+.nav-button:hover:not(.disabled) {
+background-color: #e0e0e0;
+transform: scale(1.1);
+box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.nav-button.disabled {
+opacity: 0.5;
+cursor: not-allowed;
+}
+.card ul, .card ol {
+padding-left: 20px;
+}
+</style>
+</head>
+<body>
+<div class="nav-bar">
+<button class="nav-button" onclick="history.back()">◄</button>
+<a class="nav-button" href="../index.html" onclick="setRandomStylesheet()">🏠</a>
+<button class="nav-button" id="forwardButton" onclick="history.forward()">►</button>
+</div>
+<div class="container">
+<div class="card">
+<h1>🍪 Cookies salés au levain, tomates séchées & basilic</h1>
+<h2>🥣 Ingrédients</h2>
+<ul>
+<li>120 g de levain non rafraîchi</li>
+<li>80 g d’huile d’olive (ou moitié huile d’olive / moitié beurre pour plus de tenue)</li>
+<li>1 œuf</li>
+<li>180 g de farine T65 ou T80</li>
+<li>40 g de parmesan râpé (ou pecorino si tu veux plus corsé)</li>
+<li>60 g de tomates séchées, hachées</li>
+<li>1 petit bouquet de basilic frais ciselé (ou 1 c. à soupe de basilic séché)</li>
+<li>1 c. à café de levure chimique ou ½ c. à café de bicarbonate de soude</li>
+<li>½ c. à café de sel</li>
+<li>Poivre noir moulu</li>
+</ul>
+<h2>👨‍🍳 Préparation</h2>
+<ol>
+<li>Dans un bol, mélange l’huile d’olive et l’œuf. Ajoute le levain et fouette pour obtenir une pâte homogène.</li>
+<li>Dans un autre récipient, mélange la farine, la levure (ou bicarbonate), le sel et le parmesan.</li>
+<li>Incorpore le mélange sec au premier bol, sans trop travailler.</li>
+<li>Ajoute les tomates séchées hachées et le basilic. Assaisonne d’un peu de poivre.</li>
+<li>Forme des boules de pâte, aplatis-les légèrement et dispose-les sur une plaque recouverte de papier cuisson.</li>
+<li>Cuisson : 180 °C, 12–15 minutes, jusqu’à ce qu’ils soient dorés.</li>
+</ol>
+<h2>📝 Astuces</h2>
+<ul>
+<li>Pour une saveur plus intense, ajoute une pincée d’origan séché ou de piment d’Espelette.</li>
+<li>Si la pâte est trop collante, place-la 15 minutes au réfrigérateur avant de former les boules.</li>
+</ul>
+</div>
+</div>
+<script>
+function applyStoredStylesheet() {
+const styleIndex = localStorage.getItem('styleIndex') || '0';
+console.log('Applying stylesheet: style' + styleIndex + '.css');
+document.getElementById('stylesheet').href = `../style/style${styleIndex}.css`;
+}
+function setRandomStylesheet() {
+const styleIndex = new Date().getSeconds() % 10;
+console.log('Setting styleIndex: ' + styleIndex);
+localStorage.setItem('styleIndex', styleIndex);
+applyStoredStylesheet();
+}
+function setRandomBackground() {
+const storedImage = localStorage.getItem('backgroundImage');
+if (storedImage) {
+console.log('Using stored background image');
+document.body.style.backgroundImage = `url('${storedImage}')`;
+return;
+}
+const apiKey = 'DdLm68RKMaOFFrnhe846qAD91zs3xmz0KSqhsmLnlIo';
+fetch(`https://api.unsplash.com/photos/random?query=bread&orientation=landscape&client_id=${apiKey}`)
+.then(response => {
+if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+return response.json();
+})
+.then(data => {
+if (data.urls && data.urls.full) {
+const imageUrl = data.urls.full;
+document.body.style.backgroundImage = `url('${imageUrl}')`;
+localStorage.setItem('backgroundImage', imageUrl);
+console.log('New background image set and stored:', imageUrl);
+} else {
+console.error('Erreur: Aucune image reçue de l\'API Unsplash');
+}
+})
+.catch(error => console.error('Erreur lors du chargement de l\'image:', error));
+}
+function updateForwardButton() {
+const forwardButton = document.getElementById('forwardButton');
+forwardButton.classList.add('disabled');
+}
+applyStoredStylesheet();
+setRandomBackground();
+updateForwardButton();
+</script>
+</body>
+</html>
